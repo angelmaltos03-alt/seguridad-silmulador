@@ -1,0 +1,3067 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True Crime Industrial - Caso de la Mano Atrapada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c81e1e 0%, #8b0000 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '⚠️';
+            position: absolute;
+            font-size: 15em;
+            opacity: 0.1;
+            top: -50px;
+            right: -50px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-weight: 900;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .narrative-box {
+            background: #fff5f5;
+            border-left: 5px solid #c81e1e;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-style: italic;
+            color: #742a2a;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #2d3748;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 18px;
+            text-align: center;
+            color: #a0aec0;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 0.95em;
+            font-weight: 700;
+            transition: all 0.3s;
+            border-bottom: 4px solid transparent;
+            white-space: nowrap;
+            min-width: 180px;
+        }
+
+        .nav-tab:hover {
+            background: #4a5568;
+            color: white;
+        }
+
+        .nav-tab.active {
+            color: white;
+            background: #4a5568;
+            border-bottom-color: #c81e1e;
+        }
+
+        .content {
+            padding: 40px;
+            min-height: 600px;
+        }
+
+        .chapter {
+            display: none;
+        }
+
+        .chapter.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tool-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tool-icon {
+            font-size: 2.5em;
+        }
+
+        .alert {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #742a2a;
+        }
+
+        .alert.success {
+            background: #f0fff4;
+            border-left: 4px solid #68d391;
+            color: #22543d;
+        }
+
+        .alert.warning {
+            background: #fffaf0;
+            border-left: 4px solid #f6ad55;
+            color: #744210;
+        }
+
+        .alert.info {
+            background: #ebf8ff;
+            border-left: 4px solid #63b3ed;
+            color: #2c5282;
+        }
+
+        .legal-box {
+            background: #f7fafc;
+            border: 2px solid #4299e1;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .legal-box h3 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .commission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .role-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .role-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%);
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .role-icon {
+            font-size: 2em;
+        }
+
+        .role-title {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1.2em;
+        }
+
+        .role-subtitle {
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .textarea-field {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            margin: 10px 0;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .textarea-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .inspection-type {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .type-card {
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .type-card:hover {
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .type-card.selected {
+            border-color: #c81e1e;
+            background: linear-gradient(135deg, #fff5f5 0%, #fee);
+            box-shadow: 0 8px 16px rgba(200, 30, 30, 0.2);
+        }
+
+        .type-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .type-card.selected .type-badge {
+            background: #c81e1e;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+
+        .matrix-table th {
+            background: #2d3748;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .matrix-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .matrix-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .matrix-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .select-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 0.95em;
+            background: white;
+        }
+
+        .risk-level {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .risk-low {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .risk-medium {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .risk-high {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .why-container {
+            margin: 30px 0;
+        }
+
+        .why-chain {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .why-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 25px;
+            background: #f7fafc;
+            border-left: 5px solid #667eea;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .why-item:hover {
+            background: #edf2f7;
+            transform: translateX(10px);
+        }
+
+        .why-number {
+            background: #667eea;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            flex-shrink: 0;
+        }
+
+        .why-content {
+            flex: 1;
+        }
+
+        .why-question {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .ishikawa-container {
+            margin: 30px 0;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+
+        .fishbone {
+            position: relative;
+            padding: 60px 40px;
+            min-height: 600px;
+        }
+
+        .spine {
+            width: 80%;
+            height: 4px;
+            background: #2d3748;
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            transform: translateY(-50%);
+        }
+
+        .bone {
+            position: absolute;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            width: 220px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .bone-top {
+            top: 10%;
+        }
+
+        .bone-middle-top {
+            top: 30%;
+        }
+
+        .bone-bottom {
+            bottom: 10%;
+        }
+
+        .bone-middle-bottom {
+            bottom: 30%;
+        }
+
+        .bone::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 80px;
+            background: #cbd5e0;
+            left: 50%;
+        }
+
+        .bone-top::before, .bone-middle-top::before {
+            bottom: -80px;
+            transform: rotate(45deg);
+            transform-origin: top;
+        }
+
+        .bone-bottom::before, .bone-middle-bottom::before {
+            top: -80px;
+            transform: rotate(-45deg);
+            transform-origin: bottom;
+        }
+
+        .bone-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .bone-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 0.9em;
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .problem-box {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #c81e1e;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            font-weight: bold;
+            width: 200px;
+            text-align: center;
+            font-size: 1.1em;
+            box-shadow: 0 4px 12px rgba(200, 30, 30, 0.3);
+        }
+
+        .hierarchy-controls {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .hierarchy-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #cbd5e0;
+        }
+
+        .hierarchy-item.active {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .hierarchy-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .calculator {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .calc-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calc-field {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .calc-label {
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .calc-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 1.2em;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .calc-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .result-item {
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .action-plan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+
+        .action-plan-table th {
+            background: #2d3748;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .action-plan-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #c81e1e;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .btn-danger:hover {
+            background: #9b1c1c;
+            transform: translateY(-2px);
+        }
+
+        .add-row-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .add-row-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .questions-box {
+            background: #edf2f7;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .questions-box h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .questions-box ol {
+            margin-left: 25px;
+            line-height: 2;
+        }
+
+        .final-message {
+            text-align: center;
+            margin-top: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, #c81e1e 0%, #8b0000 100%);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .final-message h2 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .final-message p {
+            font-size: 1.5em;
+            font-weight: bold;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tab {
+                font-size: 0.8em;
+                padding: 12px 8px;
+            }
+
+            .commission-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calc-row {
+                grid-template-columns: 1fr;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fishbone {
+                min-height: 800px;
+            }
+
+            .bone {
+                width: 180px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ TRUE CRIME INDUSTRIAL</h1>
+            <p>El Caso de la Mano Atrapada - Simulación Integral</p>
+        </div>
+
+        <div class="narrative-box">
+            <strong>NARRATIVA:</strong> "En una planta industrial ocurrió un accidente grave. La empresa quiere cerrarlo rápido. La autoridad puede intervenir. Ustedes son la Comisión Mixta. Todo lo que hagan —o dejen de hacer— tendrá consecuencias."
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showChapter(1)">📋 Cap 1: Comisión Mixta</button>
+            <button class="nav-tab" onclick="showChapter(2)">⚠️ Cap 2: El Accidente</button>
+            <button class="nav-tab" onclick="showChapter(3)">🔍 Cap 3: Causa Raíz</button>
+            <button class="nav-tab" onclick="showChapter(4)">✅ Cap 4: AST y Controles</button>
+            <button class="nav-tab" onclick="showChapter(5)">📊 Cap 5: KPIs y Cierre</button>
+        </div>
+
+        <div class="content">
+            <!-- CAPÍTULO 1: LA COMISIÓN MIXTA -->
+            <div id="chapter1" class="chapter active">
+                <div class="tool-title">
+                    <span class="tool-icon">📋</span>
+                    <div>
+                        <h2>CAPÍTULO 1 - LA COMISIÓN MIXTA</h2>
+                        <p>La estructura del poder</p>
+                    </div>
+                </div>
+
+                <div class="alert warning">
+                    <strong>📌 ESCENARIO:</strong> Tras varios meses sin recorridos formales, ocurre un accidente grave. La empresa reactiva de urgencia la Comisión Mixta de Seguridad e Higiene. La autoridad puede solicitar evidencia legal y documental de su existencia y funcionamiento.
+                </div>
+
+                <div class="legal-box">
+                    <h3>⚖️ Fundamento Legal</h3>
+                    <div style="margin: 15px 0;">
+                        <strong>Ley Federal del Trabajo (LFT)</strong><br>
+                        <strong>Artículos 509 y 510:</strong>
+                        <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                            <li>En cada centro de trabajo debe integrarse una Comisión Mixta de Seguridad e Higiene</li>
+                            <li>Su función es investigar las causas de los accidentes y enfermedades de trabajo</li>
+                            <li>Debe proponer medidas para prevenir la repetición de riesgos</li>
+                            <li>El patrón tiene la obligación de permitir y facilitar su funcionamiento</li>
+                            <li>La ausencia de la Comisión o su inactividad constituye incumplimiento legal</li>
+                        </ul>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <strong>NOM-019-STPS-2011</strong><br>
+                        Constitución, integración, organización y funcionamiento de las Comisiones Mixtas de Seguridad e Higiene
+                        <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                            <li>Integración paritaria (empresa–trabajadores)</li>
+                            <li>Designación formal de cargos</li>
+                            <li>Elaboración de actas</li>
+                            <li>Realización de recorridos periódicos</li>
+                            <li>Seguimiento a medidas correctivas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">👥 Conformación de la Comisión (NOM-019-STPS)</h3>
+                
+                <div class="commission-grid">
+                    <div class="role-card" onclick="selectRole(this, 'presidente')">
+                        <div class="role-header">
+                            <div class="role-icon">👔</div>
+                            <div>
+                                <div class="role-title">Presidente</div>
+                                <div class="role-subtitle">EMPRESA</div>
+                            </div>
+                        </div>
+                        <p style="color: #4a5568; margin-bottom: 10px;"><strong>Responsabilidad legal:</strong> Vigilar cumplimiento y presidir sesiones</p>
+                        <input type="text" class="input-field" placeholder="Nombre del Presidente" onclick="event.stopPropagation()">
+                    </div>
+
+                    <div class="role-card" onclick="selectRole(this, 'secretario')">
+                        <div class="role-header">
+                            <div class="role-icon">📝</div>
+                            <div>
+                                <div class="role-title">Secretario</div>
+                                <div class="role-subtitle">TRABAJADORES</div>
+                            </div>
+                        </div>
+                        <p style="color: #4a5568; margin-bottom: 10px;"><strong>Responsabilidad legal:</strong> Convocar y redactar actas de recorridos</p>
+                        <input type="text" class="input-field" placeholder="Nombre del Secretario" onclick="event.stopPropagation()">
+                    </div>
+
+                    <div class="role-card" onclick="selectRole(this, 'vocal1')">
+                        <div class="role-header">
+                            <div class="role-icon">🔧</div>
+                            <div>
+                                <div class="role-title">Vocal 1</div>
+                                <div class="role-subtitle">EMPRESA</div>
+                            </div>
+                        </div>
+                        <p style="color: #4a5568; margin-bottom: 10px;"><strong>Responsabilidad legal:</strong> Apoyo técnico y detección de actos inseguros</p>
+                        <input type="text" class="input-field" placeholder="Nombre del Vocal 1" onclick="event.stopPropagation()">
+                    </div>
+
+                    <div class="role-card" onclick="selectRole(this, 'vocal2')">
+                        <div class="role-header">
+                            <div class="role-icon">⚠️</div>
+                            <div>
+                                <div class="role-title">Vocal 2</div>
+                                <div class="role-subtitle">TRABAJADORES</div>
+                            </div>
+                        </div>
+                        <p style="color: #4a5568; margin-bottom: 10px;"><strong>Responsabilidad legal:</strong> Reporte de condiciones inseguras</p>
+                        <input type="text" class="input-field" placeholder="Nombre del Vocal 2" onclick="event.stopPropagation()">
+                    </div>
+
+                    <div class="role-card" onclick="selectRole(this, 'vocal3')">
+                        <div class="role-header">
+                            <div class="role-icon">✅</div>
+                            <div>
+                                <div class="role-title">Vocal 3</div>
+                                <div class="role-subtitle">MIXTO</div>
+                            </div>
+                        </div>
+                        <p style="color: #4a5568; margin-bottom: 10px;"><strong>Responsabilidad legal:</strong> Seguimiento a medidas correctivas</p>
+                        <input type="text" class="input-field" placeholder="Nombre del Vocal 3" onclick="event.stopPropagation()">
+                    </div>
+                </div>
+
+                <h3 style="margin: 40px 0 20px 0;">🚶 Tipo de Recorrido de Seguridad</h3>
+                <p style="color: #4a5568; margin-bottom: 20px;">Seleccione el tipo de recorrido según NOM-019-STPS y justifique su selección:</p>
+
+                <div class="inspection-type">
+                    <div class="type-card" onclick="selectInspectionType(this, 'ordinario')">
+                        <span class="type-badge">ORDINARIO</span>
+                        <h4 style="margin: 15px 0 10px 0;">Recorrido Ordinario</h4>
+                        <p style="color: #4a5568; line-height: 1.6;">
+                            Recorrido programado de forma periódica para verificar condiciones generales de seguridad e higiene.<br><br>
+                            <strong>Frecuencia:</strong> Mensual o trimestral
+                        </p>
+                    </div>
+
+                    <div class="type-card" onclick="selectInspectionType(this, 'extraordinario')">
+                        <span class="type-badge">EXTRAORDINARIO</span>
+                        <h4 style="margin: 15px 0 10px 0;">Recorrido Extraordinario</h4>
+                        <p style="color: #4a5568; line-height: 1.6;">
+                            Recorrido no programado después de un accidente, incidente grave, cambio de proceso o queja formal.<br><br>
+                            <strong>Motivo:</strong> Accidente grave por atrapamiento
+                        </p>
+                    </div>
+
+                    <div class="type-card" onclick="selectInspectionType(this, 'critico')">
+                        <span class="type-badge">CRÍTICO</span>
+                        <h4 style="margin: 15px 0 10px 0;">Recorrido Específico por Riesgo Crítico</h4>
+                        <p style="color: #4a5568; line-height: 1.6;">
+                            Evaluar áreas con maquinaria, energía, ergonomía o atrapamientos.<br><br>
+                            <strong>Aplicación:</strong> Riesgos graves e inminentes
+                        </p>
+                    </div>
+
+                    <div class="type-card" onclick="selectInspectionType(this, 'ergonomico')">
+                        <span class="type-badge">ERGONÓMICO</span>
+                        <h4 style="margin: 15px 0 10px 0;">Recorrido Ergonómico</h4>
+                        <p style="color: #4a5568; line-height: 1.6;">
+                            Detectar fatiga, posturas forzadas, iluminación deficiente y sobrecarga física.<br><br>
+                            <strong>Vínculo:</strong> Seguridad + Productividad + Salud
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin: 30px 0;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 10px;">Justificación del tipo de recorrido seleccionado:</label>
+                    <textarea class="textarea-field" id="justificationText" placeholder="Explique por qué seleccionó este tipo de recorrido conforme a la NOM-019-STPS..."></textarea>
+                </div>
+
+                <div class="questions-box">
+                    <h3>🎯 Productos Esperados del Capítulo 1:</h3>
+                    <ol>
+                        <li>Acta de integración de Comisión Mixta firmada</li>
+                        <li>Justificación del tipo de recorrido seleccionado</li>
+                        <li>Programa de recorridos</li>
+                    </ol>
+                </div>
+
+                <button class="btn-primary" onclick="saveCommission()">💾 Guardar Acta de Integración</button>
+                <button class="btn-secondary" onclick="verifyChapter1()">✅ Verificar Respuestas</button>
+                
+                <div id="chapter1Feedback" style="display: none; margin-top: 20px;"></div>
+                
+                <button class="btn-secondary" onclick="showChapter(2)" style="margin-top: 20px;">➡️ Continuar al Capítulo 2</button>
+            </div>
+
+            <!-- CAPÍTULO 2: EL ACCIDENTE -->
+            <div id="chapter2" class="chapter">
+                <div class="tool-title">
+                    <span class="tool-icon">⚠️</span>
+                    <div>
+                        <h2>CAPÍTULO 2 - EL ACCIDENTE</h2>
+                        <p>El hecho</p>
+                    </div>
+                </div>
+
+                <div class="alert">
+                    <strong>🚨 REPORTE DEL ACCIDENTE:</strong><br>
+                    "Operador sufre atrapamiento de mano derecha y caída posterior. Se detecta iluminación deficiente y fatiga acumulada."<br><br>
+                    <strong>La autoridad exige un dictamen técnico–legal.</strong>
+                </div>
+
+                <div class="legal-box">
+                    <h3>⚖️ Marco Legal Aplicable</h3>
+                    <div style="margin: 15px 0;">
+                        <strong>Ley Federal del Trabajo (Artículos 473-515)</strong>
+                        <ul style="margin-left: 25px; margin-top: 10px; line-height: 1.8;">
+                            <li><strong>Art. 473:</strong> Riesgos de trabajo son los accidentes y enfermedades a que están expuestos los trabajadores</li>
+                            <li><strong>Art. 474:</strong> Accidente de trabajo es toda lesión orgánica perturbación funcional, inmediata o posterior, muerte, producida repentinamente en ejercicio o con motivo del trabajo</li>
+                            <li><strong>Art. 475-515:</strong> Obligaciones del patrón y derechos del trabajador</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <strong>📘 MATRIZ OFICIAL NOM-030-STPS-2009</strong><br>
+                    A continuación se presenta la tabla oficial para identificar y evaluar los riesgos conforme a la norma.
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">📊 Tabla de Probabilidad (NOM-030-STPS)</h3>
+                
+                <table class="matrix-table" style="margin-bottom: 30px;">
+                    <thead>
+                        <tr>
+                            <th>Valor</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">1</td>
+                            <td><strong>BAJA</strong></td>
+                            <td>El daño ocurrirá rara vez (ha ocurrido en la industria pero no en esta empresa)</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td><strong>MEDIA</strong></td>
+                            <td>El daño ocurrirá ocasionalmente (ha ocurrido alguna vez en esta empresa)</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">3</td>
+                            <td><strong>ALTA</strong></td>
+                            <td>El daño ocurrirá siempre o casi siempre (ocurre frecuentemente en esta empresa)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin: 30px 0 20px 0;">⚡ Tabla de Severidad (Consecuencias - NOM-030-STPS)</h3>
+                
+                <table class="matrix-table" style="margin-bottom: 30px;">
+                    <thead>
+                        <tr>
+                            <th>Valor</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">1</td>
+                            <td><strong>LIGERAMENTE DAÑINO</strong></td>
+                            <td>Lesiones superficiales, pequeños cortes, molestias, irritación de ojos. Daños superficiales sin incapacidad.</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">2</td>
+                            <td><strong>DAÑINO</strong></td>
+                            <td>Quemaduras, conmociones, fracturas menores, sordera. Requiere incapacidad temporal.</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">3</td>
+                            <td><strong>EXTREMADAMENTE DAÑINO</strong></td>
+                            <td>Amputaciones, fracturas mayores, muerte, incapacidad permanente parcial o total.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin: 30px 0 20px 0;">🎯 Matriz de Evaluación de Riesgos (NOM-030-STPS)</h3>
+
+                <div style="background: #f7fafc; padding: 25px; border-radius: 10px; margin-bottom: 20px;">
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="background: #2d3748; color: white;">
+                                <th style="padding: 12px; border: 2px solid #cbd5e0;" rowspan="2" colspan="2">MATRIZ NOM-030</th>
+                                <th style="padding: 12px; border: 2px solid #cbd5e0;" colspan="3">SEVERIDAD (Consecuencias)</th>
+                            </tr>
+                            <tr style="background: #4a5568; color: white;">
+                                <th style="padding: 12px; border: 2px solid #cbd5e0;">1<br>LIGERAMENTE DAÑINO</th>
+                                <th style="padding: 12px; border: 2px solid #cbd5e0;">2<br>DAÑINO</th>
+                                <th style="padding: 12px; border: 2px solid #cbd5e0;">3<br>EXTREMADAMENTE DAÑINO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border: 2px solid #cbd5e0; background: #4a5568; color: white; font-weight: bold;" rowspan="3">PROBABILIDAD</td>
+                                <td style="padding: 12px; border: 2px solid #cbd5e0; background: #4a5568; color: white; font-weight: bold;">1<br>BAJA</td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #c6f6d5; text-align: center; font-weight: bold;">
+                                    1 × 1 = 1<br>RIESGO BAJO
+                                </td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #c6f6d5; text-align: center; font-weight: bold;">
+                                    1 × 2 = 2<br>RIESGO BAJO
+                                </td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #feebc8; text-align: center; font-weight: bold;">
+                                    1 × 3 = 3<br>RIESGO MEDIO
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 2px solid #cbd5e0; background: #4a5568; color: white; font-weight: bold;">2<br>MEDIA</td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #c6f6d5; text-align: center; font-weight: bold;">
+                                    2 × 1 = 2<br>RIESGO BAJO
+                                </td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #feebc8; text-align: center; font-weight: bold;">
+                                    2 × 2 = 4<br>RIESGO MEDIO
+                                </td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #fed7d7; text-align: center; font-weight: bold;">
+                                    2 × 3 = 6<br>RIESGO ALTO
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 2px solid #cbd5e0; background: #4a5568; color: white; font-weight: bold;">3<br>ALTA</td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #feebc8; text-align: center; font-weight: bold;">
+                                    3 × 1 = 3<br>RIESGO MEDIO
+                                </td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #fed7d7; text-align: center; font-weight: bold;">
+                                    3 × 2 = 6<br>RIESGO ALTO
+                                </td>
+                                <td style="padding: 15px; border: 2px solid #cbd5e0; background: #fed7d7; text-align: center; font-weight: bold;">
+                                    3 × 3 = 9<br>RIESGO CRÍTICO
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>📊 Interpretación de Resultados:</strong><br>
+                        • <span style="color: #22543d; font-weight: bold;">RIESGO BAJO (1-2):</span> Controlable con procedimientos normales<br>
+                        • <span style="color: #744210; font-weight: bold;">RIESGO MEDIO (3-4):</span> Requiere medidas de control específicas<br>
+                        • <span style="color: #742a2a; font-weight: bold;">RIESGO ALTO (6):</span> Requiere acción correctiva urgente<br>
+                        • <span style="color: #742a2a; font-weight: bold;">RIESGO CRÍTICO (9):</span> No iniciar trabajo hasta implementar controles
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">📝 Evaluación del Caso: Atrapamiento de Mano Derecha</h3>
+
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Clasificación</th>
+                            <th>Selección</th>
+                            <th>Justificación Legal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tipo de Riesgo</strong></td>
+                            <td>
+                                <select class="select-input" id="riskType">
+                                    <option value="">Seleccione...</option>
+                                    <option value="accidente">Accidente de trabajo</option>
+                                    <option value="enfermedad">Enfermedad de trabajo</option>
+                                    <option value="trayecto">Accidente en trayecto</option>
+                                    <option value="no-laboral">No laboral</option>
+                                </select>
+                            </td>
+                            <td>
+                                <textarea class="matrix-input" id="riskTypeJustification" placeholder="Fundamento legal (Art. LFT)..."></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relación con actividad laboral</strong></td>
+                            <td>
+                                <select class="select-input" id="laborRelation">
+                                    <option value="">Seleccione...</option>
+                                    <option value="directa">Directa</option>
+                                    <option value="indirecta">Indirecta</option>
+                                    <option value="ninguna">Ninguna</option>
+                                </select>
+                            </td>
+                            <td>
+                                <textarea class="matrix-input" id="laborRelationJustification" placeholder="Explique la relación..."></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Probabilidad (según NOM-030)</strong></td>
+                            <td>
+                                <select class="select-input" id="probability">
+                                    <option value="">Seleccione...</option>
+                                    <option value="1">1 - BAJA (Rara vez)</option>
+                                    <option value="2">2 - MEDIA (Ocasionalmente)</option>
+                                    <option value="3">3 - ALTA (Frecuentemente)</option>
+                                </select>
+                            </td>
+                            <td>
+                                <textarea class="matrix-input" id="probabilityJustification" placeholder="Justifique según las condiciones del caso..."></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Severidad (según NOM-030)</strong></td>
+                            <td>
+                                <select class="select-input" id="severity">
+                                    <option value="">Seleccione...</option>
+                                    <option value="1">1 - LIGERAMENTE DAÑINO (Sin incapacidad)</option>
+                                    <option value="2">2 - DAÑINO (Incapacidad temporal)</option>
+                                    <option value="3">3 - EXTREMADAMENTE DAÑINO (Incapacidad permanente/muerte)</option>
+                                </select>
+                            </td>
+                            <td>
+                                <textarea class="matrix-input" id="severityJustification" placeholder="Justifique según el daño potencial..."></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nivel de Riesgo</strong></td>
+                            <td colspan="2">
+                                <div id="riskLevelResult" style="padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em;">
+                                    Seleccione Probabilidad y Severidad
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button class="btn-primary" onclick="calculateRiskLevel()">🧮 Calcular Nivel de Riesgo</button>
+                <button class="btn-secondary" onclick="verifyAnswers()">✅ Verificar Respuestas</button>
+
+                <div id="feedbackBox" style="display: none; margin-top: 20px;"></div>
+
+                <h3 style="margin: 40px 0 20px 0;">📋 Dictamen Técnico-Legal</h3>
+                
+                <div style="background: #f7fafc; padding: 25px; border-radius: 10px;">
+                    <div style="margin: 20px 0;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 10px;">¿Es un riesgo de trabajo? Fundamente:</label>
+                        <textarea class="textarea-field" placeholder="Cite los artículos de la LFT aplicables..."></textarea>
+                    </div>
+
+                    <div style="margin: 20px 0;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 10px;">Obligaciones del patrón (Art. LFT):</label>
+                        <textarea class="textarea-field" placeholder="Liste las obligaciones legales del patrón..."></textarea>
+                    </div>
+
+                    <div style="margin: 20px 0;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 10px;">Derechos del trabajador (Art. LFT):</label>
+                        <textarea class="textarea-field" placeholder="Liste los derechos del trabajador..."></textarea>
+                    </div>
+                </div>
+
+                <div class="questions-box">
+                    <h3>🎯 Productos Esperados del Capítulo 2:</h3>
+                    <ol>
+                        <li>Clasificación del riesgo de trabajo</li>
+                        <li>Matriz de riesgo completada</li>
+                        <li>Dictamen técnico–legal del accidente</li>
+                    </ol>
+                </div>
+
+                <button class="btn-primary" onclick="saveDictamen()">💾 Guardar Dictamen</button>
+                <button class="btn-secondary" onclick="showChapter(3)">➡️ Continuar al Capítulo 3</button>
+            </div>
+
+            <!-- CAPÍTULO 3: ANÁLISIS DE CAUSA RAÍZ -->
+            <div id="chapter3" class="chapter">
+                <div class="tool-title">
+                    <span class="tool-icon">🔍</span>
+                    <div>
+                        <h2>CAPÍTULO 3 - ANÁLISIS DE CAUSA RAÍZ</h2>
+                        <p>El accidente no fue un error humano</p>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <strong>🎯 OBJETIVO:</strong> Identificar la causa raíz real del accidente, no solo el síntoma.<br><br>
+                    El accidente nunca es "culpa del trabajador". Es un sistema que falló.
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">❓ Metodología: Los 5 Porqués</h3>
+
+                <div class="why-container">
+                    <div class="why-chain">
+                        <div class="why-item">
+                            <div class="why-number">1</div>
+                            <div class="why-content">
+                                <div class="why-question">¿Por qué ocurrió el atrapamiento de mano derecha?</div>
+                                <input type="text" class="input-field" id="why1" placeholder="Primera causa identificada...">
+                            </div>
+                        </div>
+
+                        <div class="why-item">
+                            <div class="why-number">2</div>
+                            <div class="why-content">
+                                <div class="why-question">¿Por qué <span id="why1-echo">...</span>?</div>
+                                <input type="text" class="input-field" id="why2" placeholder="Profundice en la causa anterior...">
+                            </div>
+                        </div>
+
+                        <div class="why-item">
+                            <div class="why-number">3</div>
+                            <div class="why-content">
+                                <div class="why-question">¿Por qué <span id="why2-echo">...</span>?</div>
+                                <input type="text" class="input-field" id="why3" placeholder="Continue profundizando...">
+                            </div>
+                        </div>
+
+                        <div class="why-item">
+                            <div class="why-number">4</div>
+                            <div class="why-content">
+                                <div class="why-question">¿Por qué <span id="why3-echo">...</span>?</div>
+                                <input type="text" class="input-field" id="why4" placeholder="Acérquese a la causa raíz...">
+                            </div>
+                        </div>
+
+                        <div class="why-item">
+                            <div class="why-number">5</div>
+                            <div class="why-content">
+                                <div class="why-question">¿Por qué <span id="why4-echo">...</span>?</div>
+                                <input type="text" class="input-field" id="why5" placeholder="Identifique la CAUSA RAÍZ...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="rootCauseBox" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #c81e1e 0%, #8b0000 100%); color: white; padding: 30px; border-radius: 12px; text-align: center;">
+                        <h3 style="margin-bottom: 15px;">🎯 CAUSA RAÍZ IDENTIFICADA:</h3>
+                        <p id="rootCauseText" style="font-size: 1.3em; font-weight: bold;"></p>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="analyzeCauseRoot()">🔍 Identificar Causa Raíz</button>
+
+                <h3 style="margin: 50px 0 20px 0;">🐟 Diagrama de Ishikawa (Espina de Pescado)</h3>
+
+                <div class="ishikawa-container">
+                    <div class="fishbone">
+                        <!-- Categorías superiores -->
+                        <div class="bone bone-top" style="left: 5%;">
+                            <div class="bone-title">⚙️ MAQUINARIA</div>
+                            <textarea class="bone-input" placeholder="Ej: Sin guardas, sin mantenimiento..."></textarea>
+                        </div>
+
+                        <div class="bone bone-middle-top" style="left: 25%;">
+                            <div class="bone-title">📋 MÉTODO</div>
+                            <textarea class="bone-input" placeholder="Ej: Sin procedimientos, sin capacitación..."></textarea>
+                        </div>
+
+                        <div class="bone bone-top" style="left: 45%;">
+                            <div class="bone-title">👷 MANO DE OBRA</div>
+                            <textarea class="bone-input" placeholder="Ej: Fatiga, sin rotación..."></textarea>
+                        </div>
+
+                        <!-- Espina central -->
+                        <div class="spine"></div>
+
+                        <!-- Categorías inferiores -->
+                        <div class="bone bone-bottom" style="left: 5%;">
+                            <div class="bone-title">🌡️ MEDIO AMBIENTE</div>
+                            <textarea class="bone-input" placeholder="Ej: Iluminación deficiente, ergonomía..."></textarea>
+                        </div>
+
+                        <div class="bone bone-middle-bottom" style="left: 25%;">
+                            <div class="bone-title">📦 MATERIALES</div>
+                            <textarea class="bone-input" placeholder="Ej: Sin EPP, herramientas inadecuadas..."></textarea>
+                        </div>
+
+                        <div class="bone bone-bottom" style="left: 45%;">
+                            <div class="bone-title">🏢 GESTIÓN</div>
+                            <textarea class="bone-input" placeholder="Ej: Sin comisión activa, sin AST..."></textarea>
+                        </div>
+
+                        <!-- Problema -->
+                        <div class="problem-box">
+                            ATRAPAMIENTO<br>+<br>CAÍDA
+                        </div>
+                    </div>
+                </div>
+
+                <div class="questions-box">
+                    <h3>🎯 Productos Esperados del Capítulo 3:</h3>
+                    <ol>
+                        <li>Cadena completa de 5 Porqués</li>
+                        <li>Diagrama de Ishikawa con 6 categorías</li>
+                        <li>Identificación de causa inmediata y causa raíz</li>
+                    </ol>
+                </div>
+
+                <button class="btn-primary" onclick="saveRootCauseAnalysis()">💾 Guardar Análisis</button>
+                <button class="btn-secondary" onclick="verifyIshikawa()">✅ Verificar Diagrama de Ishikawa</button>
+                <button class="btn-secondary" onclick="showChapter(4)" style="margin-top: 10px;">➡️ Continuar al Capítulo 4</button>
+                
+                <div id="ishikawaFeedback" style="display: none; margin-top: 20px;"></div>
+            </div>
+
+            <!-- CAPÍTULO 4: AST Y MEDIDAS CORRECTIVAS -->
+            <div id="chapter4" class="chapter">
+                <div class="tool-title">
+                    <span class="tool-icon">✅</span>
+                    <div>
+                        <h2>CAPÍTULO 4 - MEDIDAS CORRECTIVAS Y PREVENTIVAS</h2>
+                        <p>Evitar que vuelva a ocurrir - Análisis de Seguridad en el Trabajo (AST)</p>
+                    </div>
+                </div>
+
+                <div class="alert warning">
+                    <strong>⚠️ REQUISITO STPS:</strong> La autoridad exige evidencia de que el riesgo fue evaluado y controlado mediante un Análisis de Seguridad en el Trabajo (AST) vinculado a la NOM-030-STPS.
+                </div>
+
+                <div class="legal-box">
+                    <h3>📘 ¿Qué es un AST?</h3>
+                    <p style="line-height: 1.8; margin-top: 10px;">
+                        Es una herramienta preventiva que descompone una actividad en pasos, identifica los peligros asociados y define medidas de control antes de ejecutar el trabajo.<br><br>
+                        <strong>Es una de las primeras cosas que solicita un inspector STPS cuando ocurre un accidente con maquinaria.</strong>
+                    </p>
+                </div>
+
+                <div class="alert info">
+                    <strong>🔗 VINCULACIÓN NOM-030-STPS:</strong><br>
+                    La NOM-030-STPS-2009 establece que todo centro de trabajo debe contar con una Matriz de Identificación, Evaluación y Control de Riesgos, la cual es la base obligatoria para definir acciones preventivas y elaborar AST.<br><br>
+                    ⚠️ <strong>Primero se construye la matriz, después el AST.</strong>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">📊 PASO 1: Matriz de Riesgos (NOM-030-STPS)</h3>
+
+                <table class="matrix-table" id="nom030Matrix">
+                    <thead>
+                        <tr>
+                            <th>Proceso/Área</th>
+                            <th>Actividad</th>
+                            <th>Peligro</th>
+                            <th>Riesgo</th>
+                            <th>Probabilidad (1-3)</th>
+                            <th>Severidad (1-3)</th>
+                            <th>Nivel</th>
+                            <th>Control Existente</th>
+                            <th>Requiere AST</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrixBody">
+                        <tr>
+                            <td><input type="text" class="matrix-input" placeholder="Ej: Ensamble manual"></td>
+                            <td><input type="text" class="matrix-input" placeholder="Ej: Operación de prensa"></td>
+                            <td><input type="text" class="matrix-input" placeholder="Ej: Punto de atrapamiento"></td>
+                            <td><input type="text" class="matrix-input" placeholder="Ej: Atrapamiento de mano"></td>
+                            <td>
+                                <select class="select-input matrix-prob">
+                                    <option value="">-</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="select-input matrix-sev">
+                                    <option value="">-</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </td>
+                            <td class="matrix-level">-</td>
+                            <td><input type="text" class="matrix-input" placeholder="Ej: Ninguno"></td>
+                            <td class="matrix-ast">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button class="add-row-btn" onclick="addMatrixRow()">➕ Agregar Riesgo</button>
+                <button class="btn-primary" onclick="calculateMatrixLevels()">🧮 Calcular Niveles de Riesgo</button>
+
+                <div class="alert success" style="margin: 20px 0;">
+                    <strong>📊 Interpretación de Nivel de Riesgo:</strong><br>
+                    • <strong>1-2 (Bajo):</strong> Controlable<br>
+                    • <strong>3-4 (Medio):</strong> Requiere control<br>
+                    • <strong>6-9 (Alto/Crítico):</strong> ⚠️ Acción inmediata y AST obligatorio
+                </div>
+
+                <h3 style="margin: 40px 0 20px 0;">📋 PASO 2: Análisis de Seguridad en el Trabajo (AST)</h3>
+
+                <div style="background: #f7fafc; padding: 25px; border-radius: 10px; margin: 20px 0;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Empresa:</label>
+                            <input type="text" class="input-field" placeholder="Nombre de la empresa">
+                        </div>
+                        <div>
+                            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Área/Proceso:</label>
+                            <input type="text" class="input-field" placeholder="Ej: Área de ensamble">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Puesto de trabajo:</label>
+                            <input type="text" class="input-field" placeholder="Ej: Operador de prensa">
+                        </div>
+                        <div>
+                            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Fecha:</label>
+                            <input type="date" class="input-field">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 8px;">Actividad crítica (de la matriz NOM-030):</label>
+                        <input type="text" class="input-field" placeholder="Actividad identificada con nivel de riesgo alto/crítico">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 8px;">Riesgo identificado (nivel alto/crítico):</label>
+                        <input type="text" class="input-field" placeholder="Riesgo que requiere AST según matriz">
+                    </div>
+                </div>
+
+                <h4 style="margin: 30px 0 15px 0;">Desglose de la Actividad (AST)</h4>
+
+                <table class="matrix-table" id="astTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">No.</th>
+                            <th>Paso de la actividad</th>
+                            <th>Peligro</th>
+                            <th>Riesgo</th>
+                            <th>Nivel</th>
+                            <th>Medidas de control</th>
+                            <th>NOM aplicable</th>
+                            <th>Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody id="astBody">
+                        <tr>
+                            <td>1</td>
+                            <td><input type="text" class="matrix-input" placeholder="Ej: Colocar pieza en prensa"></td>
+                            <td><input type="text" class="matrix-input" placeholder="De la matriz NOM-030"></td>
+                            <td><input type="text" class="matrix-input" placeholder="De la matriz NOM-030"></td>
+                            <td>
+                                <select class="select-input">
+                                    <option value="">-</option>
+                                    <option value="bajo">Bajo</option>
+                                    <option value="medio">Medio</option>
+                                    <option value="alto">Alto</option>
+                                    <option value="critico">Crítico</option>
+                                </select>
+                            </td>
+                            <td><textarea class="matrix-input" rows="2" placeholder="Según jerarquía de controles"></textarea></td>
+                            <td><input type="text" class="matrix-input" placeholder="Ej: NOM-004-STPS"></td>
+                            <td><input type="text" class="matrix-input" placeholder="Nombre y cargo"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button class="add-row-btn" onclick="addASTRow()">➕ Agregar Paso</button>
+
+                <h4 style="margin: 30px 0 15px 0;">⚙️ Jerarquía de Controles (Marcar los aplicados)</h4>
+
+                <div class="hierarchy-controls">
+                    <div class="hierarchy-item">
+                        <input type="checkbox" class="hierarchy-checkbox" id="elim">
+                        <label for="elim" style="flex: 1; cursor: pointer;">
+                            <strong>1. ELIMINACIÓN:</strong> Eliminar el peligro completamente (rediseño de proceso)
+                        </label>
+                    </div>
+
+                    <div class="hierarchy-item">
+                        <input type="checkbox" class="hierarchy-checkbox" id="sust">
+                        <label for="sust" style="flex: 1; cursor: pointer;">
+                            <strong>2. SUSTITUCIÓN:</strong> Reemplazar por algo menos peligroso
+                        </label>
+                    </div>
+
+                    <div class="hierarchy-item">
+                        <input type="checkbox" class="hierarchy-checkbox" id="ing">
+                        <label for="ing" style="flex: 1; cursor: pointer;">
+                            <strong>3. CONTROLES DE INGENIERÍA:</strong> Guardas, resguardos, sistemas de paro de emergencia
+                        </label>
+                    </div>
+
+                    <div class="hierarchy-item">
+                        <input type="checkbox" class="hierarchy-checkbox" id="admin">
+                        <label for="admin" style="flex: 1; cursor: pointer;">
+                            <strong>4. CONTROLES ADMINISTRATIVOS:</strong> Procedimientos, capacitación, rotación, señalización
+                        </label>
+                    </div>
+
+                    <div class="hierarchy-item">
+                        <input type="checkbox" class="hierarchy-checkbox" id="epp">
+                        <label for="epp" style="flex: 1; cursor: pointer;">
+                            <strong>5. EPP (Equipo de Protección Personal):</strong> Última línea de defensa
+                        </label>
+                    </div>
+
+                    <div class="alert" style="margin-top: 15px;">
+                        <strong>⚠️ IMPORTANTE:</strong> El EPP nunca puede ser el único control cuando el riesgo es alto o crítico.
+                    </div>
+                </div>
+
+                <div style="margin: 30px 0;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 10px;">EPP requerido (si aplica):</label>
+                    <input type="text" class="input-field" placeholder="Ej: Guantes anti-corte, lentes de seguridad">
+                </div>
+
+                <div style="margin: 30px 0;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 10px;">NOM aplicable al EPP:</label>
+                    <input type="text" class="input-field" placeholder="Ej: NOM-017-STPS-2008">
+                </div>
+
+                <div class="questions-box">
+                    <h3>🎯 Productos Esperados del Capítulo 4:</h3>
+                    <ol>
+                        <li>Matriz de riesgos conforme NOM-030-STPS</li>
+                        <li>AST alineado a la matriz</li>
+                        <li>Coherencia técnica entre riesgo, control y NOM aplicable</li>
+                        <li>Plan de acciones con responsables y fechas</li>
+                    </ol>
+                </div>
+
+                <button class="btn-primary" onclick="saveAST()">💾 Guardar AST Completo</button>
+                <button class="btn-secondary" onclick="showChapter(5)">➡️ Continuar al Capítulo 5</button>
+            </div>
+
+            <!-- CAPÍTULO 5: TABLERO DE CONTROL Y CIERRE -->
+            <div id="chapter5" class="chapter">
+                <div class="tool-title">
+                    <span class="tool-icon">📊</span>
+                    <div>
+                        <h2>CAPÍTULO 5 - TABLERO DE CONTROL (KPIs) Y CIERRE</h2>
+                        <p>Los números no mienten... o sí</p>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <strong>🎯 OBJETIVO:</strong> Calcular los indicadores de seguridad y determinar si reflejan la realidad o están maquillados.
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">🧮 Cálculo de Índices de Siniestralidad</h3>
+
+                <div class="calculator">
+                    <h4 style="margin-bottom: 20px;">Datos de la Empresa</h4>
+
+                    <div class="calc-row">
+                        <div class="calc-field">
+                            <div class="calc-label">Número de Accidentes</div>
+                            <input type="number" class="calc-input" id="numAccidents" value="3">
+                        </div>
+
+                        <div class="calc-field">
+                            <div class="calc-label">Horas-Hombre Trabajadas</div>
+                            <input type="number" class="calc-input" id="hoursWorked" value="240000">
+                        </div>
+
+                        <div class="calc-field">
+                            <div class="calc-label">Días Perdidos</div>
+                            <input type="number" class="calc-input" id="daysLost" value="18">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="calculateKPIs()">📊 Calcular Índices</button>
+
+                    <div id="kpiResults"></div>
+                </div>
+
+                <div style="margin: 30px 0;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 10px;">Diagnóstico Crítico:</label>
+                    <textarea class="textarea-field" placeholder="¿Los indicadores reflejan la realidad o están maquillados? ¿Qué evidencia lo demuestra?"></textarea>
+                </div>
+
+                <h3 style="margin: 50px 0 20px 0;">📋 ACTA DE CIERRE Y PLAN DE ACCIÓN</h3>
+
+                <table class="action-plan-table" id="actionPlanTable">
+                    <thead>
+                        <tr>
+                            <th>Hallazgo Crítico</th>
+                            <th>Acción Correctiva (Corto Plazo)</th>
+                            <th>Acción Preventiva (Largo Plazo)</th>
+                            <th>Responsable</th>
+                            <th>Fecha Límite</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actionPlanBody">
+                        <tr>
+                            <td><textarea class="matrix-input" rows="2" placeholder="Ej: Falta de actas de recorrido"></textarea></td>
+                            <td><textarea class="matrix-input" rows="2" placeholder="Ej: Recorrido extraordinario inmediato"></textarea></td>
+                            <td><textarea class="matrix-input" rows="2" placeholder="Ej: Calendario digital de recorridos"></textarea></td>
+                            <td><input type="text" class="matrix-input" placeholder="Nombre y cargo"></td>
+                            <td><input type="date" class="matrix-input"></td>
+                        </tr>
+                        <tr>
+                            <td><textarea class="matrix-input" rows="2" placeholder="Ej: Punto de atrapamiento sin resguardo"></textarea></td>
+                            <td><textarea class="matrix-input" rows="2" placeholder="Ej: Instalación de paro de emergencia"></textarea></td>
+                            <td><textarea class="matrix-input" rows="2" placeholder="Ej: Rediseño de guarda conforme NOM-004"></textarea></td>
+                            <td><input type="text" class="matrix-input" placeholder="Nombre y cargo"></td>
+                            <td><input type="date" class="matrix-input"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button class="add-row-btn" onclick="addActionRow()">➕ Agregar Acción</button>
+
+                <div style="margin: 40px 0;">
+                    <h4 style="margin-bottom: 15px;">Firmas de Validación del Acta de Cierre</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Presidente de la Comisión Mixta:</label>
+                            <input type="text" class="input-field" placeholder="Nombre y firma">
+                        </div>
+                        <div>
+                            <label style="font-weight: bold; display: block; margin-bottom: 8px;">Secretario de la Comisión Mixta:</label>
+                            <input type="text" class="input-field" placeholder="Nombre y firma">
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 8px;">Fecha de validación:</label>
+                        <input type="date" class="input-field">
+                    </div>
+                </div>
+
+                <div class="questions-box">
+                    <h3>🎯 Productos Esperados del Capítulo 5:</h3>
+                    <ol>
+                        <li>Cálculo de Índice de Frecuencia (IF) e Índice de Gravedad (IG)</li>
+                        <li>Interpretación crítica de los indicadores</li>
+                        <li>Acta de cierre con plan de acción completo</li>
+                        <li>Firmas de validación de la Comisión Mixta</li>
+                    </ol>
+                </div>
+
+                <div class="final-message">
+                    <h2>💡 CIERRE DE LA SIMULACIÓN</h2>
+                    <p>
+                        "La seguridad no falla por una persona.<br>
+                        Falla cuando el sistema lo permite."
+                    </p>
+                    <p style="margin-top: 20px; font-size: 1.1em; font-weight: normal;">
+                        La Comisión Mixta entrega el expediente completo.<br>
+                        El alumno ha integrado teoría y práctica, pensando como ingeniero y como autoridad,<br>
+                        comprendiendo el impacto legal, humano y productivo de la seguridad industrial.
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-secondary" onclick="verifyChapter5()">✅ Verificar KPIs y Plan de Acción</button>
+                    <button class="btn-danger" onclick="downloadCompleteReport()">📄 Descargar Expediente Completo</button>
+                    <button class="btn-secondary" onclick="resetSimulation()">🔄 Nueva Simulación</button>
+                </div>
+                
+                <div id="chapter5Feedback" style="display: none; margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let selectedInspectionType = null;
+
+        // Navegación entre capítulos
+        function showChapter(chapterNum) {
+            document.querySelectorAll('.chapter').forEach(ch => ch.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById('chapter' + chapterNum).classList.add('active');
+            document.querySelectorAll('.nav-tab')[chapterNum - 1].classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // CAPÍTULO 1: COMISIÓN MIXTA
+        function selectRole(card, role) {
+            card.classList.toggle('selected');
+        }
+
+        function selectInspectionType(card, type) {
+            document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedInspectionType = type;
+        }
+
+        function verifyChapter1() {
+            const justification = document.getElementById('justificationText').value;
+            
+            let feedback = '<div style="background: white; padding: 25px; border-radius: 10px; border: 3px solid #667eea;">';
+            feedback += '<h3 style="color: #2d3748; margin-bottom: 20px;">📋 RETROALIMENTACIÓN - CAPÍTULO 1</h3>';
+            
+            let score = 0;
+            let maxScore = 3;
+            
+            // Verificar integración de la comisión
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>1️⃣ Integración de la Comisión Mixta:</strong><br><br>';
+            
+            const roleCards = document.querySelectorAll('.role-card');
+            const selectedRoles = Array.from(roleCards).filter(card => {
+                const input = card.querySelector('.input-field');
+                return input && input.value.trim().length > 0;
+            }).length;
+            
+            if (selectedRoles >= 5) {
+                feedback += '✅ <strong>CORRECTO:</strong> Has designado los 5 miembros de la Comisión<br>';
+                feedback += '<span style="color: #22543d; margin-left: 25px;">• Presidente (Empresa)</span><br>';
+                feedback += '<span style="color: #22543d; margin-left: 25px;">• Secretario (Trabajadores)</span><br>';
+                feedback += '<span style="color: #22543d; margin-left: 25px;">• 3 Vocales (mixto)</span><br>';
+                feedback += '<p style="margin-top: 10px; color: #2c5282;"><strong>Fundamento:</strong> NOM-019-STPS-2011 establece integración paritaria (50% empresa, 50% trabajadores)</p>';
+                score++;
+            } else if (selectedRoles >= 3) {
+                feedback += '⚠️ <strong>PARCIAL:</strong> Faltan algunos miembros de la Comisión<br>';
+                feedback += '<p style="color: #744210; margin-top: 10px;">Completa los 5 roles según NOM-019-STPS: Presidente, Secretario y 3 Vocales</p>';
+                score += 0.5;
+            } else {
+                feedback += '❌ <strong>INCORRECTO:</strong> No has completado la integración de la Comisión<br>';
+                feedback += '<p style="color: #c81e1e; margin-top: 10px;"><strong>Error crítico:</strong> Sin Comisión integrada, la empresa viola Art. 509 LFT</p>';
+            }
+            feedback += '</div>';
+            
+            // Verificar tipo de recorrido
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>2️⃣ Tipo de Recorrido Seleccionado:</strong><br><br>';
+            
+            if (!selectedInspectionType) {
+                feedback += '❌ <strong>NO SELECCIONADO:</strong> Debes elegir un tipo de recorrido<br>';
+                feedback += '<p style="color: #c81e1e; margin-top: 10px;">Sin tipo de recorrido definido, no puedes proceder con la investigación</p>';
+            } else if (selectedInspectionType === 'extraordinario' || selectedInspectionType === 'critico') {
+                feedback += '✅ <strong>CORRECTO:</strong> ' + (selectedInspectionType === 'extraordinario' ? 'Recorrido Extraordinario' : 'Recorrido Específico por Riesgo Crítico') + '<br>';
+                feedback += '<div style="margin-top: 15px; padding: 15px; background: #f0fff4; border-left: 3px solid #48bb78; border-radius: 5px;">';
+                feedback += '<strong style="color: #22543d;">✅ JUSTIFICACIÓN CORRECTA:</strong><br>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.8; color: #2c5282;">';
+                feedback += '<strong>Fundamento NOM-019-STPS:</strong><br>';
+                feedback += '• <strong>¿Por qué extraordinario?</strong> Porque ya ocurrió un accidente grave<br>';
+                feedback += '• <strong>¿Por qué crítico?</strong> Porque hay maquinaria con riesgo de atrapamiento<br>';
+                feedback += '• <strong>¿Por qué inmediato?</strong> Porque existe riesgo grave e inminente<br>';
+                feedback += '• <strong>¿Por qué ergonómico?</strong> Porque hay fatiga e iluminación deficiente<br><br>';
+                feedback += '<strong style="color: #c81e1e;">⚠️ NO es ordinario</strong> porque los recorridos ordinarios son preventivos y programados, no reactivos a accidentes.';
+                feedback += '</p>';
+                feedback += '</div>';
+                score++;
+            } else if (selectedInspectionType === 'ergonomico') {
+                feedback += '⚠️ <strong>PARCIALMENTE CORRECTO:</strong> Recorrido Ergonómico<br>';
+                feedback += '<p style="color: #744210; margin-top: 10px;"><strong>Análisis:</strong> Aunque la ergonomía es un factor (fatiga, iluminación), el detonante principal es el ACCIDENTE GRAVE.</p>';
+                feedback += '<p style="color: #2c5282; margin-top: 10px;"><strong>Tipo más adecuado:</strong> Extraordinario o Específico por Riesgo Crítico, porque la NOM-019 establece que después de un accidente se debe realizar recorrido extraordinario de forma inmediata.</p>';
+                score += 0.5;
+            } else {
+                feedback += '❌ <strong>INCORRECTO:</strong> Recorrido Ordinario<br>';
+                feedback += '<div style="margin-top: 15px; padding: 15px; background: #fff5f5; border-left: 3px solid #fc8181; border-radius: 5px;">';
+                feedback += '<strong style="color: #c81e1e;">❌ ERROR GRAVE:</strong><br>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.8; color: #742a2a;">';
+                feedback += 'Los recorridos <strong>ordinarios</strong> son preventivos y programados (mensuales/trimestrales).<br><br>';
+                feedback += '❌ <strong>NO aplican cuando:</strong><br>';
+                feedback += '• Ya ocurrió un accidente grave<br>';
+                feedback += '• Existe riesgo inminente<br>';
+                feedback += '• La autoridad puede intervenir<br><br>';
+                feedback += '<strong style="color: #c81e1e;">Tu error:</strong> Confundes prevención con reacción. Este caso requiere ACCIÓN INMEDIATA.';
+                feedback += '</p>';
+                feedback += '</div>';
+            }
+            feedback += '</div>';
+            
+            // Verificar justificación
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>3️⃣ Calidad de la Justificación:</strong><br><br>';
+            
+            if (!justification || justification.trim().length < 50) {
+                feedback += '❌ <strong>INSUFICIENTE:</strong> La justificación es muy corta o vacía<br>';
+                feedback += '<p style="color: #c81e1e; margin-top: 10px;">Una justificación legal debe incluir: fundamento normativo, razón técnica, y urgencia.</p>';
+            } else {
+                const hasLegalRef = justification.toLowerCase().includes('nom') || 
+                                   justification.toLowerCase().includes('019') ||
+                                   justification.toLowerCase().includes('stps') ||
+                                   justification.toLowerCase().includes('lft');
+                const hasReason = justification.toLowerCase().includes('accidente') || 
+                                 justification.toLowerCase().includes('grave') ||
+                                 justification.toLowerCase().includes('riesgo');
+                
+                if (hasLegalRef && hasReason) {
+                    feedback += '✅ <strong>BIEN FUNDAMENTADA:</strong> Incluye referencia legal y razón técnica<br>';
+                    feedback += '<p style="color: #22543d; margin-top: 10px;">Tu justificación cumple con los elementos esenciales.</p>';
+                    score++;
+                } else if (hasReason) {
+                    feedback += '⚠️ <strong>PARCIAL:</strong> Falta fundamento legal explícito<br>';
+                    feedback += '<p style="color: #744210; margin-top: 10px;">Mejora tu justificación citando: "NOM-019-STPS-2011, apartado X.X"</p>';
+                    score += 0.5;
+                } else {
+                    feedback += '❌ <strong>INCOMPLETA:</strong> No explica razón técnica del recorrido<br>';
+                    feedback += '<p style="color: #c81e1e; margin-top: 10px;">Debe mencionar: accidente ocurrido, riesgo grave, necesidad de acción inmediata.</p>';
+                }
+            }
+            feedback += '</div>';
+            
+            // Ejemplo de justificación modelo
+            feedback += '<div style="margin: 20px 0; padding: 20px; background: #ebf8ff; border-left: 4px solid #4299e1; border-radius: 8px;">';
+            feedback += '<h4 style="color: #2c5282; margin-bottom: 15px;">📚 EJEMPLO DE JUSTIFICACIÓN CORRECTA</h4>';
+            feedback += '<div style="line-height: 1.8; color: #2d3748;">';
+            feedback += '<p><strong>Tipo seleccionado:</strong> Recorrido Extraordinario Específico por Riesgo Crítico</p>';
+            feedback += '<p style="margin-top: 15px;"><strong>Justificación:</strong></p>';
+            feedback += '<p style="margin-left: 20px; font-style: italic;">';
+            feedback += '"Con fundamento en la NOM-019-STPS-2011, apartado 7.3, se determina realizar un <strong>Recorrido Extraordinario</strong> debido a que:<br><br>';
+            feedback += '1. <strong>Ocurrió un accidente de trabajo grave</strong> (atrapamiento de mano derecha con caída posterior) el día 27 de enero a las 19:40 hrs.<br><br>';
+            feedback += '2. <strong>Existe riesgo grave e inminente</strong> identificado: maquinaria con puntos de atrapamiento sin resguardos, iluminación deficiente, y fatiga del trabajador.<br><br>';
+            feedback += '3. <strong>La NOM-019 establece</strong> que después de un accidente se debe realizar verificación inmediata de las condiciones que lo generaron.<br><br>';
+            feedback += '4. <strong>Clasificación adicional:</strong> Recorrido Específico por Riesgo Crítico enfocado en factores ergonómicos (fatiga, iluminación) y mecánicos (atrapamiento).<br><br>';
+            feedback += '<strong>Conclusión:</strong> El recorrido debe realizarse de forma INMEDIATA y PRIORITARIA, antes de reanudar operaciones en el área afectada."';
+            feedback += '</p>';
+            feedback += '</div>';
+            feedback += '</div>';
+            
+            // Recordatorio legal
+            feedback += '<div style="margin: 20px 0; padding: 15px; background: #fff5f5; border-left: 4px solid #fc8181; border-radius: 8px;">';
+            feedback += '<strong style="color: #c81e1e;">⚖️ IMPLICACIONES LEGALES</strong><br>';
+            feedback += '<p style="margin-top: 10px; line-height: 1.8; color: #4a5568;">';
+            feedback += '<strong>Art. 509-510 LFT:</strong> La Comisión Mixta es OBLIGATORIA<br>';
+            feedback += '<strong>NOM-019-STPS:</strong> Los recorridos extraordinarios son OBLIGATORIOS después de accidentes<br>';
+            feedback += '<strong>Consecuencia de no hacerlo:</strong> Multa de 250-5000 UMAS (aprox. $26,000 - $520,000 MXN)<br>';
+            feedback += '<strong>Riesgo adicional:</strong> Responsabilidad civil y penal si hay reincidencia';
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            // Calificación final
+            const percentage = (score / maxScore) * 100;
+            feedback += '<div style="margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; ';
+            
+            if (percentage >= 85) {
+                feedback += 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">';
+                feedback += '<h3>🎉 EXCELENTE INTEGRACIÓN</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">La Comisión está correctamente integrada y el tipo de recorrido es el adecuado. ✅</p>';
+            } else if (percentage >= 60) {
+                feedback += 'background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%); color: white;">';
+                feedback += '<h3>⚠️ NECESITAS MEJORAR</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Revisa los puntos marcados y corrige antes de continuar.</p>';
+            } else {
+                feedback += 'background: linear-gradient(135deg, #c81e1e 0%, #9b1c1c 100%); color: white;">';
+                feedback += '<h3>❌ INTEGRACIÓN INCORRECTA</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">⚠️ Sin una Comisión correctamente integrada, no puedes continuar legalmente.</p>';
+            }
+            
+            feedback += '</div>';
+            feedback += '</div>';
+            
+            const feedbackBox = document.getElementById('chapter1Feedback');
+            feedbackBox.innerHTML = feedback;
+            feedbackBox.style.display = 'block';
+            feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function saveCommission() {
+            const justification = document.getElementById('justificationText').value;
+            
+            if (!selectedInspectionType) {
+                alert('⚠️ Debe seleccionar un tipo de recorrido');
+                return;
+            }
+
+            if (!justification.trim()) {
+                alert('⚠️ Debe justificar el tipo de recorrido seleccionado');
+                return;
+            }
+
+            alert('✅ Acta de Integración guardada exitosamente\n\nTipo de recorrido: ' + selectedInspectionType.toUpperCase() + '\n\n💡 Usa el botón "Verificar Respuestas" para recibir retroalimentación');
+        }
+
+        // CAPÍTULO 2: EL ACCIDENTE
+        function calculateRiskLevel() {
+            const prob = parseInt(document.getElementById('probability').value);
+            const sev = parseInt(document.getElementById('severity').value);
+            
+            if (!prob || !sev) {
+                alert('⚠️ Debe seleccionar Probabilidad y Severidad');
+                return;
+            }
+
+            const level = prob * sev;
+            const resultDiv = document.getElementById('riskLevelResult');
+            
+            let className = 'risk-low';
+            let text = '';
+            
+            if (level <= 2) {
+                className = 'risk-low';
+                text = `Nivel de Riesgo: ${level} - RIESGO BAJO (Controlable)`;
+            } else if (level <= 4) {
+                className = 'risk-medium';
+                text = `Nivel de Riesgo: ${level} - RIESGO MEDIO (Requiere control específico)`;
+            } else if (level === 6) {
+                className = 'risk-high';
+                text = `Nivel de Riesgo: ${level} - RIESGO ALTO (⚠️ Acción correctiva urgente)`;
+            } else {
+                className = 'risk-high';
+                text = `Nivel de Riesgo: ${level} - RIESGO CRÍTICO (⚠️ No iniciar trabajo sin controles)`;
+            }
+            
+            resultDiv.className = 'risk-level ' + className;
+            resultDiv.textContent = text;
+        }
+
+        function verifyAnswers() {
+            const riskType = document.getElementById('riskType').value;
+            const laborRelation = document.getElementById('laborRelation').value;
+            const probability = document.getElementById('probability').value;
+            const severity = document.getElementById('severity').value;
+            
+            const riskTypeJust = document.getElementById('riskTypeJustification').value;
+            const laborRelationJust = document.getElementById('laborRelationJustification').value;
+            const probabilityJust = document.getElementById('probabilityJustification').value;
+            const severityJust = document.getElementById('severityJustification').value;
+            
+            let feedback = '<div style="background: white; padding: 25px; border-radius: 10px; border: 3px solid #667eea;">';
+            feedback += '<h3 style="color: #2d3748; margin-bottom: 20px;">📋 RETROALIMENTACIÓN DE LA COMISIÓN</h3>';
+            
+            let correctAnswers = 0;
+            let totalQuestions = 4;
+            
+            // Verificar Tipo de Riesgo
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>1. Tipo de Riesgo:</strong><br>';
+            if (riskType === 'accidente') {
+                feedback += '<div style="color: #22543d; font-weight: bold; margin-top: 10px;">✅ CORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;">Es un <strong>Accidente de Trabajo</strong> según el Art. 474 LFT: "toda lesión orgánica o perturbación funcional, producida repentinamente en ejercicio o con motivo del trabajo".</p>';
+                if (riskTypeJust.toLowerCase().includes('474') || riskTypeJust.toLowerCase().includes('art')) {
+                    feedback += '<p style="color: #22543d; margin-top: 5px;">💡 Excelente fundamentación legal.</p>';
+                } else {
+                    feedback += '<p style="color: #744210; margin-top: 5px;">⚠️ Recuerda citar el artículo específico (Art. 474 LFT).</p>';
+                }
+                correctAnswers++;
+            } else {
+                feedback += '<div style="color: #c81e1e; font-weight: bold; margin-top: 10px;">❌ INCORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>Respuesta correcta:</strong> Accidente de Trabajo</p>';
+                feedback += '<p style="color: #4a5568; margin-top: 5px;"><strong>Razón:</strong> Ocurrió durante la jornada laboral, en ejercicio de sus funciones (operación de maquinaria), y produjo una lesión orgánica (atrapamiento de mano).</p>';
+                feedback += '<p style="color: #2c5282; margin-top: 10px;"><strong>Fundamento legal:</strong> Art. 474 LFT - "Accidente de trabajo es toda lesión orgánica o perturbación funcional, inmediata o posterior, o la muerte, producida repentinamente en ejercicio, o con motivo del trabajo, cualesquiera que sean el lugar y el tiempo en que se preste."</p>';
+            }
+            feedback += '</div>';
+            
+            // Verificar Relación con actividad laboral
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>2. Relación con actividad laboral:</strong><br>';
+            if (laborRelation === 'directa') {
+                feedback += '<div style="color: #22543d; font-weight: bold; margin-top: 10px;">✅ CORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;">Es <strong>DIRECTA</strong> porque el accidente ocurrió durante la operación normal de la maquinaria asignada.</p>';
+                if (laborRelationJust.length > 50) {
+                    feedback += '<p style="color: #22543d; margin-top: 5px;">💡 Buena argumentación.</p>';
+                } else {
+                    feedback += '<p style="color: #744210; margin-top: 5px;">⚠️ Desarrolla más tu justificación (menciona: operación de maquinaria, funciones asignadas, horario laboral).</p>';
+                }
+                correctAnswers++;
+            } else {
+                feedback += '<div style="color: #c81e1e; font-weight: bold; margin-top: 10px;">❌ INCORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>Respuesta correcta:</strong> Directa</p>';
+                feedback += '<p style="color: #4a5568; margin-top: 5px;"><strong>Razón:</strong> El trabajador estaba operando maquinaria de ensamble manual, actividad para la cual fue contratado, en horario laboral, en las instalaciones de la empresa.</p>';
+            }
+            feedback += '</div>';
+            
+            // Verificar Probabilidad
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>3. Probabilidad (NOM-030-STPS):</strong><br>';
+            if (probability === '3') {
+                feedback += '<div style="color: #22543d; font-weight: bold; margin-top: 10px;">✅ CORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>ALTA (3)</strong> - Según NOM-030, es ALTA porque el riesgo ocurre frecuentemente cuando:</p>';
+                feedback += '<ul style="margin-left: 25px; margin-top: 8px; line-height: 1.8;">';
+                feedback += '<li>No hay guardas de seguridad en puntos de atrapamiento</li>';
+                feedback += '<li>Hay fatiga acumulada (4 horas continuas sin rotación)</li>';
+                feedback += '<li>Iluminación deficiente aumenta la probabilidad de error</li>';
+                feedback += '<li>No existe procedimiento de trabajo seguro</li>';
+                feedback += '</ul>';
+                if (probabilityJust.toLowerCase().includes('frecuen') || probabilityJust.toLowerCase().includes('alta')) {
+                    feedback += '<p style="color: #22543d; margin-top: 10px;">💡 Buena aplicación de NOM-030.</p>';
+                }
+                correctAnswers++;
+            } else if (probability === '2') {
+                feedback += '<div style="color: #744210; font-weight: bold; margin-top: 10px;">⚠️ PARCIALMENTE CORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>Respuesta más precisa:</strong> ALTA (3)</p>';
+                feedback += '<p style="color: #4a5568; margin-top: 5px;"><strong>Justificación:</strong> Aunque "Media" es defendible, las condiciones del caso (sin guardas, fatiga, iluminación deficiente, sin rotación) indican que el evento puede ocurrir frecuentemente, no solo ocasionalmente.</p>';
+                correctAnswers += 0.5;
+            } else {
+                feedback += '<div style="color: #c81e1e; font-weight: bold; margin-top: 10px;">❌ INCORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>Respuesta correcta:</strong> ALTA (3)</p>';
+                feedback += '<p style="color: #2c5282; margin-top: 10px;"><strong>Análisis técnico:</strong></p>';
+                feedback += '<ul style="margin-left: 25px; margin-top: 8px; line-height: 1.8;">';
+                feedback += '<li><strong>Factor 1:</strong> Maquinaria sin resguardos (peligro permanente)</li>';
+                feedback += '<li><strong>Factor 2:</strong> Fatiga del operador (4 hrs sin descanso)</li>';
+                feedback += '<li><strong>Factor 3:</strong> Iluminación deficiente (aumenta errores)</li>';
+                feedback += '<li><strong>Factor 4:</strong> Sin capacitación reciente</li>';
+                feedback += '<li><strong>Conclusión NOM-030:</strong> Con estas condiciones, el accidente puede ocurrir frecuentemente = ALTA</li>';
+                feedback += '</ul>';
+            }
+            feedback += '</div>';
+            
+            // Verificar Severidad
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>4. Severidad (NOM-030-STPS):</strong><br>';
+            if (severity === '3') {
+                feedback += '<div style="color: #22543d; font-weight: bold; margin-top: 10px;">✅ CORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>EXTREMADAMENTE DAÑINO (3)</strong> - El atrapamiento de mano en maquinaria puede causar:</p>';
+                feedback += '<ul style="margin-left: 25px; margin-top: 8px; line-height: 1.8;">';
+                feedback += '<li>Amputación parcial o total de dedos/mano</li>';
+                feedback += '<li>Fracturas múltiples</li>';
+                feedback += '<li>Incapacidad permanente parcial</li>';
+                feedback += '<li>En casos extremos: pérdida total de la extremidad</li>';
+                feedback += '</ul>';
+                feedback += '<p style="color: #2c5282; margin-top: 10px;">✅ Según NOM-030, esto califica como EXTREMADAMENTE DAÑINO.</p>';
+                correctAnswers++;
+            } else if (severity === '2') {
+                feedback += '<div style="color: #744210; font-weight: bold; margin-top: 10px;">⚠️ SUBESTIMASTE EL RIESGO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>Respuesta correcta:</strong> EXTREMADAMENTE DAÑINO (3)</p>';
+                feedback += '<p style="color: #4a5568; margin-top: 5px;"><strong>Análisis:</strong> Aunque "Dañino (2)" podría aplicar para lesiones menores, un atrapamiento de mano en maquinaria industrial tiene alto potencial de amputación o incapacidad permanente.</p>';
+                feedback += '<p style="color: #c81e1e; margin-top: 10px;"><strong>⚠️ Error crítico:</strong> Subestimar la severidad puede llevar a controles insuficientes.</p>';
+            } else {
+                feedback += '<div style="color: #c81e1e; font-weight: bold; margin-top: 10px;">❌ INCORRECTO</div>';
+                feedback += '<p style="margin-top: 10px; line-height: 1.6;"><strong>Respuesta correcta:</strong> EXTREMADAMENTE DAÑINO (3)</p>';
+                feedback += '<p style="color: #4a5568; margin-top: 5px;">Un atrapamiento en maquinaria industrial NO es "ligeramente dañino". Las consecuencias potenciales incluyen amputación e incapacidad permanente.</p>';
+            }
+            feedback += '</div>';
+            
+            // Resultado final
+            const percentage = (correctAnswers / totalQuestions) * 100;
+            
+            feedback += '<div style="margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; ';
+            
+            if (percentage >= 90) {
+                feedback += 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">';
+                feedback += '<h3 style="margin-bottom: 10px;">🎉 ¡EXCELENTE TRABAJO!</h3>';
+                feedback += `<p style="font-size: 1.3em; font-weight: bold;">${correctAnswers} / ${totalQuestions} respuestas correctas (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">La Comisión Mixta demuestra dominio de la NOM-030-STPS y la LFT. ✅</p>';
+            } else if (percentage >= 70) {
+                feedback += 'background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%); color: white;">';
+                feedback += '<h3 style="margin-bottom: 10px;">⚠️ BUEN INTENTO</h3>';
+                feedback += `<p style="font-size: 1.3em; font-weight: bold;">${correctAnswers} / ${totalQuestions} respuestas correctas (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Revisa los puntos marcados en rojo y vuelve a intentar.</p>';
+            } else {
+                feedback += 'background: linear-gradient(135deg, #c81e1e 0%, #9b1c1c 100%); color: white;">';
+                feedback += '<h3 style="margin-bottom: 10px;">❌ NECESITAS REVISAR</h3>';
+                feedback += `<p style="font-size: 1.3em; font-weight: bold;">${correctAnswers} / ${totalQuestions} respuestas correctas (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Estudia la matriz NOM-030 y los artículos de la LFT antes de continuar.</p>';
+            }
+            
+            feedback += '</div>';
+            feedback += '</div>';
+            
+            const feedbackBox = document.getElementById('feedbackBox');
+            feedbackBox.innerHTML = feedback;
+            feedbackBox.style.display = 'block';
+            
+            // Scroll al feedback
+            feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function saveDictamen() {
+            alert('✅ Dictamen técnico-legal guardado\n\nPuede continuar al Capítulo 3');
+        }
+
+        // CAPÍTULO 3: ANÁLISIS DE CAUSA RAÍZ
+        document.addEventListener('DOMContentLoaded', function() {
+            for (let i = 1; i <= 4; i++) {
+                const input = document.getElementById('why' + i);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        const echo = document.getElementById('why' + i + '-echo');
+                        if (echo) {
+                            echo.textContent = this.value || '...';
+                        }
+                    });
+                }
+            }
+
+            // Activar/desactivar jerarquía de controles
+            document.querySelectorAll('.hierarchy-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const item = this.closest('.hierarchy-item');
+                    if (this.checked) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        function analyzeCauseRoot() {
+            const why1 = document.getElementById('why1').value;
+            const why2 = document.getElementById('why2').value;
+            const why3 = document.getElementById('why3').value;
+            const why4 = document.getElementById('why4').value;
+            const why5 = document.getElementById('why5').value;
+            
+            if (!why1.trim() || !why2.trim() || !why3.trim() || !why4.trim() || !why5.trim()) {
+                alert('❌ Por favor complete los 5 porqués antes de analizar');
+                return;
+            }
+            
+            const rootCauseBox = document.getElementById('rootCauseBox');
+            const rootCauseText = document.getElementById('rootCauseText');
+            
+            rootCauseText.textContent = why5;
+            rootCauseBox.style.display = 'block';
+            
+            // Verificar calidad del análisis
+            let feedback = '<div style="background: white; padding: 25px; border-radius: 10px; border: 3px solid #667eea; margin-top: 20px;">';
+            feedback += '<h3 style="color: #2d3748; margin-bottom: 20px;">🔍 ANÁLISIS DE CALIDAD - 5 PORQUÉS</h3>';
+            
+            let score = 0;
+            let maxScore = 5;
+            
+            // Evaluar profundidad del análisis
+            const keywords = {
+                superficial: ['trabajador', 'operador', 'persona', 'empleado', 'no puso atención', 'descuido'],
+                tecnico: ['guarda', 'resguardo', 'mantenimiento', 'iluminación', 'diseño', 'máquina', 'equipo'],
+                organizacional: ['procedimiento', 'capacitación', 'sistema', 'gestión', 'supervisión', 'comisión', 'política', 'cultura'],
+                raiz: ['sistema', 'gestión', 'organización', 'política', 'cultura de seguridad', 'falta de', 'ausencia de', 'sin sistema']
+            };
+            
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>📊 Evaluación de Profundidad:</strong><br><br>';
+            
+            // Evaluar Why 1
+            const isWhy1Superficial = keywords.superficial.some(k => why1.toLowerCase().includes(k));
+            if (!isWhy1Superficial) {
+                feedback += '✅ <strong>Porqué 1:</strong> Evitó culpar al trabajador directamente<br>';
+                score++;
+            } else {
+                feedback += '⚠️ <strong>Porqué 1:</strong> Cuidado con culpar al trabajador. Enfócate en condiciones.<br>';
+            }
+            
+            // Evaluar progresión
+            const hasTechnical = [why2, why3, why4].some(w => keywords.tecnico.some(k => w.toLowerCase().includes(k)));
+            if (hasTechnical) {
+                feedback += '✅ <strong>Porqués 2-4:</strong> Identifica factores técnicos<br>';
+                score++;
+            } else {
+                feedback += '⚠️ <strong>Porqués 2-4:</strong> Falta profundizar en factores técnicos (guardas, iluminación, etc.)<br>';
+            }
+            
+            // Evaluar causa raíz
+            const hasOrganizational = keywords.organizacional.some(k => why5.toLowerCase().includes(k)) || 
+                                     keywords.raiz.some(k => why5.toLowerCase().includes(k));
+            if (hasOrganizational) {
+                feedback += '✅ <strong>Porqué 5 (Causa Raíz):</strong> Identifica falla organizacional/sistémica<br>';
+                score += 2;
+            } else {
+                feedback += '❌ <strong>Porqué 5 (Causa Raíz):</strong> No llegó a la causa raíz sistémica<br>';
+            }
+            
+            // Evaluar longitud y coherencia
+            const avgLength = (why1.length + why2.length + why3.length + why4.length + why5.length) / 5;
+            if (avgLength > 30) {
+                feedback += '✅ <strong>Desarrollo:</strong> Respuestas bien desarrolladas<br>';
+                score++;
+            } else {
+                feedback += '⚠️ <strong>Desarrollo:</strong> Respuestas muy cortas, desarrolla más cada porqué<br>';
+            }
+            
+            feedback += '</div>';
+            
+            // Comparar con respuesta modelo
+            feedback += '<div style="margin: 20px 0; padding: 20px; background: #ebf8ff; border-left: 4px solid #4299e1; border-radius: 8px;">';
+            feedback += '<h4 style="color: #2c5282; margin-bottom: 15px;">📚 EJEMPLO DE ANÁLISIS CORRECTO</h4>';
+            feedback += '<div style="line-height: 2;">';
+            feedback += '<strong>¿Por qué 1?</strong> Porque el trabajador realizó un movimiento en una máquina con punto de atrapamiento expuesto<br>';
+            feedback += '<strong>¿Por qué 2?</strong> Porque la máquina no tiene resguardos ni sistemas de paro de emergencia<br>';
+            feedback += '<strong>¿Por qué 3?</strong> Porque no existe un programa de mantenimiento preventivo ni evaluación de riesgos<br>';
+            feedback += '<strong>¿Por qué 4?</strong> Porque la Comisión Mixta no ha realizado recorridos de verificación en 8 meses<br>';
+            feedback += '<strong>¿Por qué 5 (CAUSA RAÍZ)?</strong> Porque la empresa no cuenta con un Sistema de Gestión de Seguridad y Salud en el Trabajo que garantice la prevención sistemática de riesgos<br>';
+            feedback += '</div>';
+            feedback += '</div>';
+            
+            // Resultado
+            const percentage = (score / maxScore) * 100;
+            feedback += '<div style="margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; ';
+            
+            if (percentage >= 80) {
+                feedback += 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">';
+                feedback += '<h3>🎉 EXCELENTE ANÁLISIS DE CAUSA RAÍZ</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Has identificado correctamente que el problema es sistémico, no individual.</p>';
+            } else if (percentage >= 60) {
+                feedback += 'background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%); color: white;">';
+                feedback += '<h3>⚠️ ANÁLISIS PARCIAL</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Estás en el camino correcto, pero necesitas profundizar más.</p>';
+            } else {
+                feedback += 'background: linear-gradient(135deg, #c81e1e 0%, #9b1c1c 100%); color: white;">';
+                feedback += '<h3>❌ ANÁLISIS SUPERFICIAL</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">⚠️ RECUERDA: El objetivo es encontrar fallas SISTÉMICAS, no culpar a personas.</p>';
+            }
+            
+            feedback += '</div>';
+            
+            feedback += '<div style="margin-top: 20px; padding: 15px; background: #fff5f5; border-left: 4px solid #fc8181; border-radius: 8px;">';
+            feedback += '<strong style="color: #742a2a;">💡 PRINCIPIO CLAVE:</strong><br>';
+            feedback += '<p style="margin-top: 10px; line-height: 1.8; color: #4a5568;">';
+            feedback += '"Un accidente <strong>NO</strong> es culpa de una persona. Es un <strong>SISTEMA</strong> que permitió que las condiciones inseguras existieran. ';
+            feedback += 'La causa raíz siempre debe apuntar a fallas en: gestión, procedimientos, capacitación, mantenimiento, o cultura organizacional."';
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            feedback += '</div>';
+            
+            // Insertar feedback después de la causa raíz
+            const container = document.getElementById('rootCauseBox');
+            const existingFeedback = container.parentElement.querySelector('.why-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'why-feedback';
+            feedbackDiv.innerHTML = feedback;
+            container.parentElement.insertBefore(feedbackDiv, container.nextSibling);
+            
+            rootCauseBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function saveRootCauseAnalysis() {
+            alert('✅ Análisis de causa raíz guardado\n\n💡 Usa "Verificar Diagrama de Ishikawa" para recibir retroalimentación sobre tu diagrama');
+        }
+
+        function verifyIshikawa() {
+            const boneInputs = document.querySelectorAll('.bone-input');
+            
+            let feedback = '<div style="background: white; padding: 25px; border-radius: 10px; border: 3px solid #667eea;">';
+            feedback += '<h3 style="color: #2d3748; margin-bottom: 20px;">🐟 RETROALIMENTACIÓN - DIAGRAMA DE ISHIKAWA</h3>';
+            
+            const categories = {
+                'maquinaria': { index: 0, name: '⚙️ MAQUINARIA' },
+                'metodo': { index: 1, name: '📋 MÉTODO' },
+                'manoObra': { index: 2, name: '👷 MANO DE OBRA' },
+                'medioAmbiente': { index: 3, name: '🌡️ MEDIO AMBIENTE' },
+                'materiales': { index: 4, name: '📦 MATERIALES' },
+                'gestion': { index: 5, name: '🏢 GESTIÓN' }
+            };
+            
+            let score = 0;
+            let maxScore = 6;
+            let completedCategories = 0;
+            
+            // Evaluar cada categoría
+            feedback += '<div style="margin: 15px 0;">';
+            
+            Object.keys(categories).forEach(key => {
+                const cat = categories[key];
+                const input = boneInputs[cat.index];
+                const value = input?.value.trim() || '';
+                
+                feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+                feedback += `<strong>${cat.name}:</strong><br>`;
+                
+                if (value.length > 20) {
+                    feedback += `<div style="color: #22543d; margin-top: 8px;">✅ Tu respuesta: "${value.substring(0, 80)}${value.length > 80 ? '...' : ''}"</div>`;
+                    completedCategories++;
+                    score++;
+                } else if (value.length > 0) {
+                    feedback += `<div style="color: #744210; margin-top: 8px;">⚠️ Muy corta: "${value}" - Desarrolla más</div>`;
+                    completedCategories++;
+                    score += 0.5;
+                } else {
+                    feedback += '<div style="color: #c81e1e; margin-top: 8px;">❌ Vacía - Falta completar</div>';
+                }
+                
+                // Dar ejemplos específicos
+                feedback += '<div style="margin-top: 10px; padding: 10px; background: white; border-left: 2px solid #cbd5e0; border-radius: 4px;">';
+                feedback += '<strong style="color: #4299e1; font-size: 0.9em;">Ejemplos correctos:</strong><br>';
+                feedback += '<span style="color: #4a5568; font-size: 0.9em;">';
+                
+                switch(key) {
+                    case 'maquinaria':
+                        feedback += '• Punto de atrapamiento sin resguardo<br>';
+                        feedback += '• Sin paro de emergencia accesible<br>';
+                        feedback += '• Mantenimiento preventivo inexistente<br>';
+                        feedback += '• Guardas fijas removidas o ausentes';
+                        break;
+                    case 'metodo':
+                        feedback += '• Sin procedimiento de trabajo seguro<br>';
+                        feedback += '• Falta de AST para actividad crítica<br>';
+                        feedback += '• Sin protocolo de bloqueo/etiquetado<br>';
+                        feedback += '• Ausencia de capacitación específica';
+                        break;
+                    case 'manoObra':
+                        feedback += '• Fatiga acumulada (4 hrs continuas)<br>';
+                        feedback += '• Sin rotación de puestos<br>';
+                        feedback += '• Falta capacitación en riesgos mecánicos<br>';
+                        feedback += '• Sin pausas activas establecidas';
+                        break;
+                    case 'medioAmbiente':
+                        feedback += '• Iluminación deficiente (< 300 lux)<br>';
+                        feedback += '• Diseño ergonómico inadecuado<br>';
+                        feedback += '• Posturas forzadas prolongadas<br>';
+                        feedback += '• Espacio de trabajo reducido';
+                        break;
+                    case 'materiales':
+                        feedback += '• EPP insuficiente o inadecuado<br>';
+                        feedback += '• Sin guantes anti-corte<br>';
+                        feedback += '• Herramientas no ergonómicas<br>';
+                        feedback += '• Materiales de resguardo ausentes';
+                        break;
+                    case 'gestion':
+                        feedback += '• Comisión Mixta inactiva (8 meses)<br>';
+                        feedback += '• Sin sistema de gestión SST<br>';
+                        feedback += '• Falta de recorridos de verificación<br>';
+                        feedback += '• Sin cultura de prevención establecida';
+                        break;
+                }
+                
+                feedback += '</span>';
+                feedback += '</div>';
+                feedback += '</div>';
+            });
+            
+            feedback += '</div>';
+            
+            // Análisis de completitud
+            feedback += '<div style="margin: 20px 0; padding: 20px; background: #ebf8ff; border-left: 4px solid #4299e1; border-radius: 8px;">';
+            feedback += '<h4 style="color: #2c5282; margin-bottom: 15px;">📊 ANÁLISIS DE COMPLETITUD</h4>';
+            feedback += '<p style="line-height: 1.8; color: #2d3748;">';
+            feedback += `<strong>Categorías completadas:</strong> ${completedCategories}/6<br><br>`;
+            
+            if (completedCategories >= 6) {
+                feedback += '✅ <strong style="color: #22543d;">EXCELENTE:</strong> Has analizado todas las categorías del diagrama de Ishikawa.<br><br>';
+                feedback += 'Esto demuestra un análisis integral que considera factores técnicos, humanos y organizacionales.';
+            } else if (completedCategories >= 4) {
+                feedback += '⚠️ <strong style="color: #744210;">PARCIAL:</strong> Faltan algunas categorías importantes.<br><br>';
+                feedback += 'Recuerda que un análisis completo requiere evaluar TODAS las categorías para identificar fallas sistémicas.';
+            } else {
+                feedback += '❌ <strong style="color: #c81e1e;">INCOMPLETO:</strong> El diagrama está muy vacío.<br><br>';
+                feedback += 'Un diagrama de Ishikawa incompleto puede omitir causas críticas del accidente.';
+            }
+            
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            // Principio metodológico
+            feedback += '<div style="margin: 20px 0; padding: 20px; background: #fffaf0; border-left: 4px solid #f6ad55; border-radius: 8px;">';
+            feedback += '<h4 style="color: #744210; margin-bottom: 15px;">💡 PRINCIPIO DE LAS 6M (Ishikawa)</h4>';
+            feedback += '<p style="line-height: 1.8; color: #2d3748;">';
+            feedback += 'El diagrama de Ishikawa (espina de pescado) organiza las causas potenciales en 6 categorías:<br><br>';
+            feedback += '<strong>1. Maquinaria:</strong> Equipos, herramientas, condiciones mecánicas<br>';
+            feedback += '<strong>2. Método:</strong> Procedimientos, protocolos, procesos<br>';
+            feedback += '<strong>3. Mano de Obra:</strong> Competencias, fatiga, capacitación<br>';
+            feedback += '<strong>4. Medio Ambiente:</strong> Condiciones físicas, iluminación, ergonomía<br>';
+            feedback += '<strong>5. Materiales:</strong> EPP, insumos, consumibles<br>';
+            feedback += '<strong>6. Gestión:</strong> Organización, sistemas, cultura de seguridad<br><br>';
+            feedback += '<strong style="color: #c81e1e;">⚠️ CLAVE:</strong> Las causas NO son independientes. Se relacionan entre sí formando una cadena causal que conduce al accidente.';
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            // Verificación de calidad de contenido
+            feedback += '<div style="margin: 20px 0; padding: 20px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<h4 style="color: #2d3748; margin-bottom: 15px;">🔍 EVALUACIÓN DE CALIDAD</h4>';
+            
+            let hasBlame = false;
+            let hasTechnical = false;
+            let hasOrganizational = false;
+            
+            boneInputs.forEach(input => {
+                const text = input.value.toLowerCase();
+                if (text.includes('trabajador') || text.includes('operador') || text.includes('no puso atención') || text.includes('descuido')) {
+                    hasBlame = true;
+                }
+                if (text.includes('guarda') || text.includes('resguardo') || text.includes('iluminación') || text.includes('mantenimiento')) {
+                    hasTechnical = true;
+                }
+                if (text.includes('sistema') || text.includes('gestión') || text.includes('comisión') || text.includes('procedimiento')) {
+                    hasOrganizational = true;
+                }
+            });
+            
+            if (hasBlame) {
+                feedback += '<div style="padding: 15px; background: #fff5f5; border-left: 3px solid #fc8181; border-radius: 5px; margin: 10px 0;">';
+                feedback += '<strong style="color: #c81e1e;">❌ ERROR CONCEPTUAL:</strong><br>';
+                feedback += '<p style="margin-top: 8px; color: #742a2a;">Detectamos que estás culpando al trabajador. Recuerda:</p>';
+                feedback += '<p style="margin-top: 8px; color: #2d3748;"><strong>"El trabajador es la última víctima de un sistema que falló antes."</strong></p>';
+                feedback += '<p style="margin-top: 8px; color: #4a5568;">Enfócate en: condiciones inseguras, falta de controles, ausencia de procedimientos.</p>';
+                feedback += '</div>';
+            }
+            
+            if (hasTechnical) {
+                feedback += '<div style="padding: 15px; background: #f0fff4; border-left: 3px solid #68d391; border-radius: 5px; margin: 10px 0;">';
+                feedback += '<strong style="color: #22543d;">✅ BIEN:</strong> Identificas factores técnicos (guardas, iluminación, mantenimiento)<br>';
+                feedback += '</div>';
+            }
+            
+            if (hasOrganizational) {
+                feedback += '<div style="padding: 15px; background: #f0fff4; border-left: 3px solid #68d391; border-radius: 5px; margin: 10px 0;">';
+                feedback += '<strong style="color: #22543d;">✅ EXCELENTE:</strong> Identificas fallas organizacionales (sistema, gestión, comisión)<br>';
+                feedback += '<p style="margin-top: 8px; color: #2d3748;">Esto demuestra comprensión de que los accidentes son fallas SISTÉMICAS.</p>';
+                feedback += '</div>';
+            }
+            
+            feedback += '</div>';
+            
+            // Calificación final
+            const percentage = (score / maxScore) * 100;
+            feedback += '<div style="margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; ';
+            
+            if (percentage >= 85 && !hasBlame) {
+                feedback += 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">';
+                feedback += '<h3>🎉 DIAGRAMA EXCELENTE</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Has realizado un análisis integral de las 6M de Ishikawa. ✅</p>';
+            } else if (percentage >= 60) {
+                feedback += 'background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%); color: white;">';
+                feedback += '<h3>⚠️ DIAGRAMA PARCIAL</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Completa las categorías faltantes y revisa las observaciones.</p>';
+            } else {
+                feedback += 'background: linear-gradient(135deg, #c81e1e 0%, #9b1c1c 100%); color: white;">';
+                feedback += '<h3>❌ DIAGRAMA INCOMPLETO</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">⚠️ Un análisis incompleto puede omitir causas críticas.</p>';
+            }
+            
+            feedback += '</div>';
+            feedback += '</div>';
+            
+            const feedbackBox = document.getElementById('ishikawaFeedback');
+            feedbackBox.innerHTML = feedback;
+            feedbackBox.style.display = 'block';
+            feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // CAPÍTULO 4: AST Y CONTROLES
+        function addMatrixRow() {
+            const tbody = document.getElementById('matrixBody');
+            const newRow = `
+                <tr>
+                    <td><input type="text" class="matrix-input" placeholder="Proceso/Área"></td>
+                    <td><input type="text" class="matrix-input" placeholder="Actividad"></td>
+                    <td><input type="text" class="matrix-input" placeholder="Peligro"></td>
+                    <td><input type="text" class="matrix-input" placeholder="Riesgo"></td>
+                    <td>
+                        <select class="select-input matrix-prob">
+                            <option value="">-</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="select-input matrix-sev">
+                            <option value="">-</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </td>
+                    <td class="matrix-level">-</td>
+                    <td><input type="text" class="matrix-input" placeholder="Control existente"></td>
+                    <td class="matrix-ast">-</td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', newRow);
+        }
+
+        function calculateMatrixLevels() {
+            const rows = document.querySelectorAll('#matrixBody tr');
+            
+            rows.forEach(row => {
+                const prob = parseInt(row.querySelector('.matrix-prob').value);
+                const sev = parseInt(row.querySelector('.matrix-sev').value);
+                const levelCell = row.querySelector('.matrix-level');
+                const astCell = row.querySelector('.matrix-ast');
+                
+                if (prob && sev) {
+                    const level = prob * sev;
+                    let className = '';
+                    let requiresAST = 'NO';
+                    
+                    if (level <= 2) {
+                        className = 'risk-low';
+                        levelCell.textContent = level + ' (Bajo)';
+                    } else if (level <= 4) {
+                        className = 'risk-medium';
+                        levelCell.textContent = level + ' (Medio)';
+                    } else {
+                        className = 'risk-high';
+                        levelCell.textContent = level + ' (Alto/Crítico)';
+                        requiresAST = 'SÍ ⚠️';
+                    }
+                    
+                    levelCell.className = 'matrix-level ' + className;
+                    astCell.textContent = requiresAST;
+                    astCell.style.fontWeight = 'bold';
+                }
+            });
+            
+            alert('✅ Niveles de riesgo calculados\n\nRevise qué actividades requieren AST obligatorio');
+        }
+
+        function addASTRow() {
+            const tbody = document.getElementById('astBody');
+            const rowCount = tbody.querySelectorAll('tr').length + 1;
+            
+            const newRow = `
+                <tr>
+                    <td>${rowCount}</td>
+                    <td><input type="text" class="matrix-input" placeholder="Paso de la actividad"></td>
+                    <td><input type="text" class="matrix-input" placeholder="Peligro"></td>
+                    <td><input type="text" class="matrix-input" placeholder="Riesgo"></td>
+                    <td>
+                        <select class="select-input">
+                            <option value="">-</option>
+                            <option value="bajo">Bajo</option>
+                            <option value="medio">Medio</option>
+                            <option value="alto">Alto</option>
+                            <option value="critico">Crítico</option>
+                        </select>
+                    </td>
+                    <td><textarea class="matrix-input" rows="2" placeholder="Medidas de control"></textarea></td>
+                    <td><input type="text" class="matrix-input" placeholder="NOM aplicable"></td>
+                    <td><input type="text" class="matrix-input" placeholder="Responsable"></td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', newRow);
+        }
+
+        function saveAST() {
+            const eppChecked = document.getElementById('epp').checked;
+            const engineeringChecked = document.getElementById('ing').checked;
+            const elimChecked = document.getElementById('elim').checked;
+            const sustChecked = document.getElementById('sust').checked;
+            const adminChecked = document.getElementById('admin').checked;
+            
+            // Verificar que haya al menos un control seleccionado
+            const totalControls = [eppChecked, engineeringChecked, elimChecked, sustChecked, adminChecked].filter(Boolean).length;
+            
+            if (totalControls === 0) {
+                alert('❌ Debe seleccionar al menos una medida de control en la Jerarquía de Controles');
+                return;
+            }
+            
+            // Crear feedback detallado
+            let feedback = '<div style="background: white; padding: 25px; border-radius: 10px; border: 3px solid #667eea; margin-top: 20px;">';
+            feedback += '<h3 style="color: #2d3748; margin-bottom: 20px;">✅ EVALUACIÓN DE CONTROLES - JERARQUÍA</h3>';
+            
+            let score = 0;
+            let maxScore = 5;
+            let warnings = [];
+            let recommendations = [];
+            
+            // Evaluar según jerarquía de controles
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>📊 Análisis de tus controles seleccionados:</strong><br><br>';
+            
+            if (elimChecked) {
+                feedback += '🏆 <strong>ELIMINACIÓN:</strong> ¡Excelente! Es el control más efectivo.<br>';
+                feedback += '<span style="color: #22543d; margin-left: 25px;">→ Ejemplo: Automatizar el proceso para eliminar interacción humana con punto de atrapamiento</span><br>';
+                score += 2;
+            } else {
+                feedback += '⚪ <strong>ELIMINACIÓN:</strong> No seleccionada<br>';
+                recommendations.push('Considera si es posible eliminar completamente el peligro mediante rediseño del proceso');
+            }
+            
+            if (sustChecked) {
+                feedback += '⭐ <strong>SUSTITUCIÓN:</strong> Muy buena opción si la eliminación no es posible.<br>';
+                feedback += '<span style="color: #22543d; margin-left: 25px;">→ Ejemplo: Sustituir prensa manual por prensa con sistema automático</span><br>';
+                score += 1.5;
+            } else {
+                feedback += '⚪ <strong>SUSTITUCIÓN:</strong> No seleccionada<br>';
+            }
+            
+            if (engineeringChecked) {
+                feedback += '✅ <strong>CONTROLES DE INGENIERÍA:</strong> Control esencial para este caso.<br>';
+                feedback += '<span style="color: #22543d; margin-left: 25px;">→ Ejemplo: Instalación de guardas fijas, resguardos móviles con enclavamiento, barreras fotoeléctricas, paro de emergencia</span><br>';
+                score += 1.5;
+            } else {
+                feedback += '❌ <strong>CONTROLES DE INGENIERÍA:</strong> No seleccionada<br>';
+                warnings.push('⚠️ CRÍTICO: Para riesgos de atrapamiento, los controles de ingeniería son OBLIGATORIOS según NOM-004-STPS');
+            }
+            
+            if (adminChecked) {
+                feedback += '✅ <strong>CONTROLES ADMINISTRATIVOS:</strong> Complemento necesario.<br>';
+                feedback += '<span style="color: #22543d; margin-left: 25px;">→ Ejemplo: Procedimientos de trabajo seguro, capacitación, permisos de trabajo, rotación de puestos, pausas activas</span><br>';
+                score += 0.5;
+            } else {
+                feedback += '⚪ <strong>CONTROLES ADMINISTRATIVOS:</strong> No seleccionada<br>';
+                recommendations.push('Los controles administrativos complementan los de ingeniería (capacitación, procedimientos, rotación)');
+            }
+            
+            if (eppChecked) {
+                feedback += '⚠️ <strong>EPP:</strong> Seleccionado como última línea de defensa.<br>';
+                feedback += '<span style="color: #744210; margin-left: 25px;">→ Ejemplo: Guantes anti-corte, protección ocular</span><br>';
+                
+                if (eppChecked && !engineeringChecked && !elimChecked && !sustChecked) {
+                    feedback += '<div style="margin-top: 10px; padding: 10px; background: #fff5f5; border-left: 3px solid #fc8181; border-radius: 5px;">';
+                    feedback += '❌ <strong style="color: #c81e1e;">ERROR CRÍTICO:</strong> EPP como único control es INACEPTABLE para riesgos altos/críticos<br>';
+                    feedback += '<span style="color: #742a2a;">El EPP solo protege a la persona, NO elimina el peligro. Según NOM-017-STPS, el EPP es el ÚLTIMO recurso.</span>';
+                    feedback += '</div>';
+                    warnings.push('EPP como único control violenta el principio de jerarquía de controles');
+                    score -= 2;
+                } else {
+                    feedback += '<span style="color: #22543d; margin-left: 25px;">✅ Correcto: EPP como complemento, no como único control</span><br>';
+                }
+            } else {
+                feedback += '⚪ <strong>EPP:</strong> No seleccionado<br>';
+            }
+            
+            feedback += '</div>';
+            
+            // Mostrar advertencias críticas
+            if (warnings.length > 0) {
+                feedback += '<div style="margin: 20px 0; padding: 20px; background: #fff5f5; border-left: 4px solid #fc8181; border-radius: 8px;">';
+                feedback += '<h4 style="color: #c81e1e; margin-bottom: 10px;">⚠️ ADVERTENCIAS CRÍTICAS</h4>';
+                warnings.forEach(w => {
+                    feedback += `<p style="margin: 8px 0; color: #742a2a;">${w}</p>`;
+                });
+                feedback += '</div>';
+            }
+            
+            // Mostrar recomendaciones
+            if (recommendations.length > 0) {
+                feedback += '<div style="margin: 20px 0; padding: 20px; background: #fffaf0; border-left: 4px solid #f6ad55; border-radius: 8px;">';
+                feedback += '<h4 style="color: #744210; margin-bottom: 10px;">💡 RECOMENDACIONES</h4>';
+                recommendations.forEach(r => {
+                    feedback += `<p style="margin: 8px 0; color: #4a5568;">${r}</p>`;
+                });
+                feedback += '</div>';
+            }
+            
+            // Respuesta modelo
+            feedback += '<div style="margin: 20px 0; padding: 20px; background: #ebf8ff; border-left: 4px solid #4299e1; border-radius: 8px;">';
+            feedback += '<h4 style="color: #2c5282; margin-bottom: 15px;">📚 SOLUCIÓN RECOMENDADA PARA ESTE CASO</h4>';
+            feedback += '<div style="line-height: 2;">';
+            feedback += '✅ <strong>1. CONTROLES DE INGENIERÍA (Prioritario):</strong><br>';
+            feedback += '<span style="margin-left: 25px;">• Instalación de guarda fija en punto de atrapamiento (NOM-004-STPS)</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Sistema de paro de emergencia accesible</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Mejora de iluminación a 300-500 lux (NOM-025-STPS)</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Barrera fotoeléctrica como respaldo</span><br><br>';
+            
+            feedback += '✅ <strong>2. CONTROLES ADMINISTRATIVOS (Complemento):</strong><br>';
+            feedback += '<span style="margin-left: 25px;">• Procedimiento de trabajo seguro (AST)</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Capacitación específica en operación segura</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Rotación de puestos cada 2 horas</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Pausas activas para reducir fatiga</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Inspecciones diarias pre-uso (checklist)</span><br><br>';
+            
+            feedback += '✅ <strong>3. EPP (Última línea):</strong><br>';
+            feedback += '<span style="margin-left: 25px;">• Guantes anti-corte (NOM-017-STPS)</span><br>';
+            feedback += '<span style="margin-left: 25px;">• Lentes de seguridad</span><br>';
+            feedback += '</div>';
+            feedback += '</div>';
+            
+            // Calificación final
+            const percentage = Math.max(0, (score / maxScore) * 100);
+            feedback += '<div style="margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; ';
+            
+            if (percentage >= 70 && warnings.length === 0) {
+                feedback += 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">';
+                feedback += '<h3>🎉 CONTROLES BIEN APLICADOS</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">Puntuación: ${percentage.toFixed(0)}%</p>`;
+                feedback += '<p style="margin-top: 10px;">Has aplicado correctamente la jerarquía de controles. ✅</p>';
+            } else if (warnings.length > 0) {
+                feedback += 'background: linear-gradient(135deg, #c81e1e 0%, #9b1c1c 100%); color: white;">';
+                feedback += '<h3>❌ CONTROLES INSUFICIENTES</h3>';
+                feedback += '<p style="margin-top: 10px;">Tienes errores críticos que debes corregir antes de aprobar este AST.</p>';
+            } else {
+                feedback += 'background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%); color: white;">';
+                feedback += '<h3>⚠️ CONTROLES PARCIALES</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">Puntuación: ${percentage.toFixed(0)}%</p>`;
+                feedback += '<p style="margin-top: 10px;">Puedes mejorar. Revisa las recomendaciones.</p>';
+            }
+            
+            feedback += '</div>';
+            
+            feedback += '<div style="margin-top: 20px; padding: 15px; background: #f0fff4; border-left: 4px solid #68d391; border-radius: 8px;">';
+            feedback += '<strong style="color: #22543d;">✅ RECUERDA:</strong><br>';
+            feedback += '<p style="margin-top: 10px; line-height: 1.8; color: #4a5568;">';
+            feedback += 'La jerarquía de controles es un principio fundamental. Siempre prioriza: <strong>Eliminación > Sustitución > Ingeniería > Administrativos > EPP</strong>. ';
+            feedback += 'Para riesgos de atrapamiento (alto/crítico), los controles de ingeniería NO son opcionales.';
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            feedback += '</div>';
+            
+            // Mostrar feedback
+            const astSection = document.querySelector('#chapter4 .hierarchy-controls');
+            const existingFeedback = astSection.parentElement.querySelector('.ast-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'ast-feedback';
+            feedbackDiv.innerHTML = feedback;
+            astSection.parentElement.insertBefore(feedbackDiv, astSection.nextSibling);
+            
+            feedbackDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Si hay errores críticos, no permitir continuar
+            if (warnings.length > 0) {
+                return false;
+            }
+            
+            alert('✅ AST guardado con observaciones. Revisa el feedback generado.');
+            return true;
+        }
+
+        // CAPÍTULO 5: KPIs Y CIERRE
+        function calculateKPIs() {
+            const accidents = parseFloat(document.getElementById('numAccidents').value);
+            const hours = parseFloat(document.getElementById('hoursWorked').value);
+            const days = parseFloat(document.getElementById('daysLost').value);
+            
+            if (!accidents || !hours || !days) {
+                alert('⚠️ Complete todos los datos');
+                return;
+            }
+            
+            // Índice de Frecuencia
+            const IF = (accidents * 200000) / hours;
+            
+            // Índice de Gravedad
+            const IG = (days * 200000) / hours;
+            
+            const results = `
+                <div class="calc-result">
+                    <h3 style="margin-bottom: 15px;">📊 RESULTADOS DE SINIESTRALIDAD</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Índice de Frecuencia (IF)</div>
+                            <div class="result-value">${IF.toFixed(2)}</div>
+                            <div style="font-size: 0.85em; margin-top: 10px; opacity: 0.9;">Accidentes por cada 200,000 hrs</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Índice de Gravedad (IG)</div>
+                            <div class="result-value">${IG.toFixed(2)}</div>
+                            <div style="font-size: 0.85em; margin-top: 10px; opacity: 0.9;">Días perdidos por cada 200,000 hrs</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <strong>Fórmulas aplicadas:</strong><br>
+                        IF = (${accidents} × 200,000) / ${hours} = ${IF.toFixed(2)}<br>
+                        IG = (${days} × 200,000) / ${hours} = ${IG.toFixed(2)}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('kpiResults').innerHTML = results;
+        }
+
+        function addActionRow() {
+            const tbody = document.getElementById('actionPlanBody');
+            const newRow = `
+                <tr>
+                    <td><textarea class="matrix-input" rows="2" placeholder="Hallazgo crítico"></textarea></td>
+                    <td><textarea class="matrix-input" rows="2" placeholder="Acción correctiva inmediata"></textarea></td>
+                    <td><textarea class="matrix-input" rows="2" placeholder="Acción preventiva a largo plazo"></textarea></td>
+                    <td><input type="text" class="matrix-input" placeholder="Responsable"></td>
+                    <td><input type="date" class="matrix-input"></td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('beforeend', newRow);
+        }
+
+        function verifyChapter5() {
+            const accidents = parseFloat(document.getElementById('numAccidents').value);
+            const hours = parseFloat(document.getElementById('hoursWorked').value);
+            const days = parseFloat(document.getElementById('daysLost').value);
+            
+            let feedback = '<div style="background: white; padding: 25px; border-radius: 10px; border: 3px solid #667eea;">';
+            feedback += '<h3 style="color: #2d3748; margin-bottom: 20px;">📊 RETROALIMENTACIÓN - CAPÍTULO 5</h3>';
+            
+            let score = 0;
+            let maxScore = 4;
+            
+            // Verificar cálculo de KPIs
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>1️⃣ Cálculo de Índices de Siniestralidad:</strong><br><br>';
+            
+            if (!accidents || !hours || !days) {
+                feedback += '❌ <strong>NO CALCULADO:</strong> Faltan datos para calcular los índices<br>';
+                feedback += '<p style="color: #c81e1e; margin-top: 10px;">Debes completar todos los campos y presionar "Calcular Índices"</p>';
+            } else {
+                const IF_calculated = (accidents * 200000) / hours;
+                const IG_calculated = (days * 200000) / hours;
+                
+                // Valores correctos para el caso
+                const IF_correct = 2.50;  // (3 × 200,000) / 240,000
+                const IG_correct = 15.00; // (18 × 200,000) / 240,000
+                
+                feedback += '✅ <strong>CÁLCULOS REALIZADOS:</strong><br>';
+                feedback += `<span style="color: #2c5282; margin-left: 25px;">• IF calculado: ${IF_calculated.toFixed(2)}</span><br>`;
+                feedback += `<span style="color: #2c5282; margin-left: 25px;">• IG calculado: ${IG_calculated.toFixed(2)}</span><br><br>`;
+                
+                if (Math.abs(IF_calculated - IF_correct) < 0.1 && Math.abs(IG_calculated - IG_correct) < 0.1) {
+                    feedback += '<div style="margin-top: 10px; padding: 10px; background: #f0fff4; border-left: 3px solid #48bb78; border-radius: 5px;">';
+                    feedback += '<strong style="color: #22543d;">✅ FÓRMULAS CORRECTAS:</strong><br>';
+                    feedback += '<p style="margin-top: 8px; color: #2c5282;">IF = (3 accidentes × 200,000) / 240,000 hrs = 2.50</p>';
+                    feedback += '<p style="color: #2c5282;">IG = (18 días × 200,000) / 240,000 hrs = 15.00</p>';
+                    feedback += '</div>';
+                    score++;
+                } else {
+                    feedback += '<div style="margin-top: 10px; padding: 10px; background: #fff5f5; border-left: 3px solid #fc8181; border-radius: 5px;">';
+                    feedback += '<strong style="color: #c81e1e;">❌ DATOS INCORRECTOS:</strong><br>';
+                    feedback += '<p style="margin-top: 8px; color: #742a2a;">Los valores correctos para este caso son:</p>';
+                    feedback += '<p style="color: #2c5282;">• 3 accidentes</p>';
+                    feedback += '<p style="color: #2c5282;">• 240,000 horas-hombre</p>';
+                    feedback += '<p style="color: #2c5282;">• 18 días perdidos</p>';
+                    feedback += '</div>';
+                }
+            }
+            feedback += '</div>';
+            
+            // Verificar interpretación de KPIs
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>2️⃣ Interpretación de Resultados:</strong><br><br>';
+            
+            feedback += '<div style="margin-top: 10px; padding: 15px; background: #ebf8ff; border-left: 3px solid #4299e1; border-radius: 5px;">';
+            feedback += '<strong style="color: #2c5282;">📊 ANÁLISIS TÉCNICO DE LOS INDICADORES:</strong><br><br>';
+            feedback += '<p style="line-height: 1.8; color: #2d3748;">';
+            feedback += '<strong>IF = 2.50</strong> (Índice de Frecuencia)<br>';
+            feedback += '<span style="margin-left: 20px;">→ Significa: 2.5 accidentes por cada 200,000 horas-hombre trabajadas</span><br>';
+            feedback += '<span style="margin-left: 20px; color: #744210;">⚠️ Nivel MODERADO - Requiere atención</span><br><br>';
+            
+            feedback += '<strong>IG = 15.00</strong> (Índice de Gravedad)<br>';
+            feedback += '<span style="margin-left: 20px;">→ Significa: 15 días perdidos por cada 200,000 horas-hombre</span><br>';
+            feedback += '<span style="margin-left: 20px; color: #c81e1e;">⚠️ Nivel ELEVADO - Los accidentes son graves</span><br><br>';
+            
+            feedback += '<strong style="color: #c81e1e;">🚨 DIAGNÓSTICO CRÍTICO:</strong><br>';
+            feedback += '<span style="margin-left: 20px;">Aunque hay pocos accidentes (IF moderado), cuando ocurren son MUY GRAVES (IG alto).</span><br>';
+            feedback += '<span style="margin-left: 20px;">Esto indica: <strong>Riesgos críticos mal controlados</strong></span><br>';
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            score++; // Punto por revisar interpretación
+            feedback += '</div>';
+            
+            // Verificar plan de acción
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>3️⃣ Plan de Acción:</strong><br><br>';
+            
+            const actionRows = document.querySelectorAll('#actionPlanBody tr');
+            let completeActions = 0;
+            
+            actionRows.forEach(row => {
+                const textareas = row.querySelectorAll('textarea');
+                const inputs = row.querySelectorAll('input');
+                
+                const finding = textareas[0]?.value || '';
+                const corrective = textareas[1]?.value || '';
+                const preventive = textareas[2]?.value || '';
+                const responsible = inputs[0]?.value || '';
+                const date = inputs[1]?.value || '';
+                
+                if (finding.trim() && corrective.trim() && preventive.trim() && responsible.trim() && date) {
+                    completeActions++;
+                }
+            });
+            
+            if (completeActions >= 2) {
+                feedback += `✅ <strong>PLAN COMPLETO:</strong> ${completeActions} acciones documentadas<br>`;
+                feedback += '<p style="color: #22543d; margin-top: 10px;">Has identificado hallazgos y propuesto medidas correctivas y preventivas.</p>';
+                score++;
+            } else if (completeActions >= 1) {
+                feedback += `⚠️ <strong>PLAN PARCIAL:</strong> ${completeActions} acción(es) completa(s)<br>`;
+                feedback += '<p style="color: #744210; margin-top: 10px;">Se recomienda documentar al menos 3-5 acciones críticas.</p>';
+                score += 0.5;
+            } else {
+                feedback += '❌ <strong>PLAN INCOMPLETO:</strong> No hay acciones documentadas<br>';
+                feedback += '<p style="color: #c81e1e; margin-top: 10px;">El plan de acción es el entregable principal del Capítulo 5.</p>';
+            }
+            
+            // Evaluar calidad de las acciones
+            feedback += '<div style="margin-top: 15px; padding: 15px; background: #ebf8ff; border-left: 3px solid #4299e1; border-radius: 5px;">';
+            feedback += '<strong style="color: #2c5282;">📚 EJEMPLO DE ACCIONES CORRECTAS:</strong><br><br>';
+            feedback += '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">';
+            feedback += '<tr style="background: #4a5568; color: white;">';
+            feedback += '<th style="padding: 10px; border: 1px solid #cbd5e0;">Hallazgo</th>';
+            feedback += '<th style="padding: 10px; border: 1px solid #cbd5e0;">Correctiva (Corto)</th>';
+            feedback += '<th style="padding: 10px; border: 1px solid #cbd5e0;">Preventiva (Largo)</th>';
+            feedback += '</tr>';
+            feedback += '<tr>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Punto de atrapamiento sin resguardo</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Paro inmediato + Instalación temporal de barrera física</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Diseño e instalación de guarda fija según NOM-004-STPS</td>';
+            feedback += '</tr>';
+            feedback += '<tr>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Iluminación deficiente (< 200 lux)</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Instalación de luminarias temporales</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Estudio lumínico + upgrade a 500 lux (NOM-025-STPS)</td>';
+            feedback += '</tr>';
+            feedback += '<tr>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Fatiga por 4hrs continuas sin rotación</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Implementar pausas activas cada hora</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Programa de rotación de puestos + evaluación ergonómica NOM-036</td>';
+            feedback += '</tr>';
+            feedback += '<tr>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Comisión inactiva 8 meses</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Sesión extraordinaria inmediata</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Calendario anual de recorridos + actas digitales</td>';
+            feedback += '</tr>';
+            feedback += '<tr>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Sin AST para actividades críticas</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Elaborar AST de emergencia</td>';
+            feedback += '<td style="padding: 10px; border: 1px solid #cbd5e0;">Sistema de Gestión SST (ISO 45001) + Biblioteca de AST</td>';
+            feedback += '</tr>';
+            feedback += '</table>';
+            feedback += '</div>';
+            
+            feedback += '</div>';
+            
+            // Verificar coherencia causa raíz → acciones
+            feedback += '<div style="margin: 15px 0; padding: 15px; background: #f7fafc; border-radius: 8px;">';
+            feedback += '<strong>4️⃣ Coherencia con Análisis Previos:</strong><br><br>';
+            
+            feedback += '<div style="padding: 15px; background: #fffaf0; border-left: 3px solid #f6ad55; border-radius: 5px;">';
+            feedback += '<strong style="color: #744210;">💡 VERIFICACIÓN CRUZADA:</strong><br>';
+            feedback += '<p style="margin-top: 10px; line-height: 1.8; color: #2d3748;">';
+            feedback += '¿Tus acciones del Capítulo 5 atacan la <strong>causa raíz</strong> identificada en el Capítulo 3?<br><br>';
+            feedback += '<strong>Ejemplo:</strong><br>';
+            feedback += '• Si en Cap. 3 identificaste: "Falta de Sistema de Gestión"<br>';
+            feedback += '• En Cap. 5 debe aparecer: "Implementar ISO 45001"<br><br>';
+            feedback += '• Si en Cap. 3 identificaste: "Comisión inactiva"<br>';
+            feedback += '• En Cap. 5 debe aparecer: "Calendario de recorridos obligatorios"<br><br>';
+            feedback += '<strong style="color: #c81e1e;">⚠️ Las acciones deben ser específicas, medibles y con fechas comprometidas.</strong>';
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            score++; // Punto por coherencia (asumiendo que revisaron)
+            feedback += '</div>';
+            
+            // Calificación final
+            const percentage = (score / maxScore) * 100;
+            feedback += '<div style="margin-top: 25px; padding: 20px; border-radius: 10px; text-align: center; ';
+            
+            if (percentage >= 85) {
+                feedback += 'background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white;">';
+                feedback += '<h3>🎉 EXPEDIENTE COMPLETO Y CORRECTO</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">✅ La Comisión Mixta ha completado exitosamente la investigación.</p>';
+                feedback += '<p style="margin-top: 10px;">Puedes descargar el expediente completo.</p>';
+            } else if (percentage >= 60) {
+                feedback += 'background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%); color: white;">';
+                feedback += '<h3>⚠️ EXPEDIENTE INCOMPLETO</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">Completa los elementos faltantes antes de cerrar el acta.</p>';
+            } else {
+                feedback += 'background: linear-gradient(135deg, #c81e1e 0%, #9b1c1c 100%); color: white;">';
+                feedback += '<h3>❌ EXPEDIENTE RECHAZADO</h3>';
+                feedback += `<p style="font-size: 1.2em; margin-top: 10px;">${score.toFixed(1)}/${maxScore} puntos (${percentage.toFixed(0)}%)</p>`;
+                feedback += '<p style="margin-top: 10px;">⚠️ Un expediente incompleto sería rechazado por la STPS.</p>';
+            }
+            
+            feedback += '</div>';
+            
+            // Mensaje final motivacional
+            feedback += '<div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">';
+            feedback += '<h4 style="margin-bottom: 15px;">💡 REFLEXIÓN FINAL</h4>';
+            feedback += '<p style="line-height: 1.8; font-size: 1.05em;">';
+            feedback += '"Los números no mienten, pero pueden ocultar la verdad. Un IF bajo con IG alto significa que cuando ocurren accidentes, son devastadores. ';
+            feedback += 'La seguridad no se mide solo en frecuencia, sino en la capacidad del sistema para prevenir daños graves. ';
+            feedback += '<br><br><strong>Un accidente no es mala suerte. Es un sistema mal diseñado.</strong>"';
+            feedback += '</p>';
+            feedback += '</div>';
+            
+            feedback += '</div>';
+            
+            const feedbackBox = document.getElementById('chapter5Feedback');
+            feedbackBox.innerHTML = feedback;
+            feedbackBox.style.display = 'block';
+            feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function downloadCompleteReport() {
+            let summary = '📄 EXPEDIENTE COMPLETO - ACTA No. 004\n\n';
+            summary += '✅ DOCUMENTOS INCLUIDOS:\n\n';
+            summary += '1. Acta de Integración de la Comisión Mixta (Cap. 1)\n';
+            summary += '2. Justificación de Recorrido Extraordinario (Cap. 1)\n';
+            summary += '3. Dictamen Técnico-Legal del Accidente (Cap. 2)\n';
+            summary += '4. Matriz de Evaluación de Riesgos NOM-030 (Cap. 2)\n';
+            summary += '5. Análisis de Causa Raíz - 5 Porqués (Cap. 3)\n';
+            summary += '6. Diagrama de Ishikawa (Cap. 3)\n';
+            summary += '7. Matriz de Riesgos NOM-030-STPS (Cap. 4)\n';
+            summary += '8. Análisis de Seguridad en el Trabajo - AST (Cap. 4)\n';
+            summary += '9. Jerarquía de Controles Aplicada (Cap. 4)\n';
+            summary += '10. Cálculo de Índices de Siniestralidad (Cap. 5)\n';
+            summary += '11. Plan de Acción Correctivo y Preventivo (Cap. 5)\n';
+            summary += '12. Firmas de Validación de la Comisión (Cap. 5)\n\n';
+            summary += '🎯 RESULTADO DE LA SIMULACIÓN:\n\n';
+            summary += '✅ El alumno ha integrado teoría y práctica\n';
+            summary += '✅ Ha pensado como ingeniero y como autoridad\n';
+            summary += '✅ Comprende el impacto legal, humano y productivo\n\n';
+            summary += '💡 "La seguridad no falla por una persona.\nFalla cuando el sistema lo permite."\n\n';
+            summary += '🏆 ¡SIMULACIÓN COMPLETADA EXITOSAMENTE!';
+            
+            alert(summary);
+        }
+
+        function resetSimulation() {
+            if (confirm('¿Desea iniciar una nueva simulación?\n\nSe perderá todo el progreso actual.')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
