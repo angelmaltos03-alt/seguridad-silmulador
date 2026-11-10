@@ -12,7 +12,7 @@ const material = (color, roughness=.7, metalness=.08) => new THREE.MeshStandardM
 function addBox(parent,size,position,mat){const mesh=new THREE.Mesh(new THREE.BoxGeometry(...size),mat);mesh.position.set(...position);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;}
 function addCylinder(parent,top,bottom,height,position,mat,segments=24){const mesh=new THREE.Mesh(new THREE.CylinderGeometry(top,bottom,height,segments),mat);mesh.position.set(...position);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;}
 
-export default function FactoryScene3D({selectedZone='production',onSelect=()=>{}}){
+export default function FactoryScene3D({selectedZone='production',onSelect=()=>{},zones=ZONES}){
   const canvasRef=useRef(null);
   const [ready,setReady]=useState(true);
   const selectedRef=useRef(selectedZone);
@@ -76,11 +76,15 @@ export default function FactoryScene3D({selectedZone='production',onSelect=()=>{
       addBox(world,[2.35,1.45,2.25],[5.1,.72,-3],wall);addBox(world,[2.48,.12,2.38],[5.1,1.5,-3],roof);
       for(let i=0;i<3;i++){addBox(world,[.52,.55,.45],[4.45+i*.62,.38,-1.72],dark);addBox(world,[.52,.06,.45],[4.45+i*.62,.69,-1.72],yellow);}
       // Marcadores de riesgo seleccionables por raycasting.
-      ZONES.forEach(zone=>{
-        const marker=new THREE.Group();marker.position.set(...zone.position);marker.userData.zoneId=zone.id;marker.userData.baseY=marker.position.y;
-        const ball=new THREE.Mesh(new THREE.SphereGeometry(.15,20,16),new THREE.MeshStandardMaterial({color:COLORS[zone.level],emissive:COLORS[zone.level],emissiveIntensity:.55,roughness:.3}));
+      const extraPositions=[[-5.5,.2,2.9],[-1.2,.2,3.5],[5.4,.2,1.8],[5.2,.2,-.3],[-5.8,.2,-.2],[.7,.2,-3.7]];
+      zones.forEach((zone,index)=>{
+        const known=ZONES.find(item=>item.id===zone.id);
+        const position=zone.position||(known&&known.position)||extraPositions[index%extraPositions.length];
+        const tone=COLORS[zone.level]||COLORS.medio;
+        const marker=new THREE.Group();marker.position.set(...position);marker.userData.zoneId=zone.id;marker.userData.baseY=marker.position.y;
+        const ball=new THREE.Mesh(new THREE.SphereGeometry(.15,20,16),new THREE.MeshStandardMaterial({color:tone,emissive:tone,emissiveIntensity:.55,roughness:.3}));
         ball.castShadow=true;marker.add(ball);
-        const ring=new THREE.Mesh(new THREE.TorusGeometry(.32,.018,8,40),new THREE.MeshBasicMaterial({color:COLORS[zone.level],transparent:true,opacity:.76}));
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(.32,.018,8,40),new THREE.MeshBasicMaterial({color:tone,transparent:true,opacity:.76}));
         ring.rotation.x=Math.PI/2;marker.add(ring);marker.userData.ball=ball;marker.userData.ring=ring;world.add(marker);markers.push(marker);
       });
       const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
@@ -102,7 +106,7 @@ export default function FactoryScene3D({selectedZone='production',onSelect=()=>{
       render();setReady(true);
       return ()=>{cancelAnimationFrame(frame);observer?.disconnect();canvas.removeEventListener('pointerdown',onDown);canvas.removeEventListener('pointermove',onMove);canvas.removeEventListener('pointerup',onUp);canvas.removeEventListener('pointercancel',onUp);scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});renderer.dispose();};
     }catch(error){console.error('No fue posible iniciar el modelo 3D:',error);setReady(false);renderer?.dispose();return undefined;}
-  },[]);
+  },[zones]);;
 
   return <div className="factory-scene"><canvas ref={canvasRef} aria-label="Modelo 3D de una planta industrial; selecciona marcadores para consultar los riesgos." />{!ready&&<div className="factory-fallback"><strong>VISTA 3D NO DISPONIBLE</strong><span>El resto del centro de mando continúa funcionando.</span></div>}<div className="scene-hud scene-hud-left"><span>PLANTA / SECTOR</span><strong>MODELO DIGITAL</strong></div><div className="scene-hud scene-hud-right"><span>MAPA ACTIVO</span><strong>SELECCIONA UN MARCADOR</strong></div><div className="scene-coordinates">INTERACTIVE MODEL · WEBGL</div></div>;
 }
