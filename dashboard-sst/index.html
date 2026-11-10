@@ -418,6 +418,23 @@ tr:hover td{background:#142b3b66}
 .storage-disclaimer b{color:#ffd58b;white-space:nowrap}
 .footer-storage-note{color:#d5b77e;font:700 8px/1.6 ui-sans-serif,system-ui;letter-spacing:.025em}
 @media(max-width:700px){.storage-disclaimer{display:block}.storage-disclaimer b{display:block;margin-bottom:3px}.footer-storage-note{font-size:8px}}
+</style><style id="ishikawa-image-presentation">
+.fishbone-image-layout{padding:16px;background:linear-gradient(145deg,#091a28,#0e2435);border:1px solid #294b60;border-radius:15px}
+.fishbone-image-layout .fishbone-caption{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+.fishbone-image-layout .fishbone-caption span{display:grid;gap:4px;color:#b9d0dc;font-size:11px}
+.fishbone-image-layout .fishbone-caption b{color:#7ce0e4;font-size:9px;letter-spacing:.14em}
+.fishbone-image-layout .fishbone-caption small{max-width:430px;color:#91aabd;font-size:9px;line-height:1.55}
+.fishbone-image-frame{position:relative;margin:0;padding:10px;border:1px solid #2b5268;border-radius:12px;background:#061522;overflow:hidden}
+.fishbone-image-frame img{display:block;width:100%;height:auto;max-height:620px;object-fit:contain;border-radius:7px}
+.fishbone-image-frame figcaption{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:9px 4px 1px;padding-top:9px;border-top:1px solid #244255}
+.fishbone-image-frame figcaption span{color:#79a0b5;font-size:8px;font-weight:800;letter-spacing:.15em}
+.fishbone-image-frame figcaption b{color:#f0c57b;font-size:11px}
+.fishbone-image-note{display:flex;align-items:center;gap:10px;margin-top:11px;padding:11px 13px;border:1px solid #28485b;border-radius:10px;background:#102638}
+.fishbone-image-check{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:10px;background:#12404b;color:#73e0df;font-size:12px;font-weight:900}
+.fishbone-image-note>span:last-child{display:grid;gap:3px}
+.fishbone-image-note b{font-size:10px;color:#d9eaf0}
+.fishbone-image-note small{font-size:9px;color:#92aabd;line-height:1.5}
+@media(max-width:700px){.fishbone-image-layout{padding:10px}.fishbone-image-layout .fishbone-caption{display:grid;gap:6px}.fishbone-image-frame{padding:5px}.fishbone-image-frame figcaption{align-items:flex-start;flex-direction:column;gap:3px}.fishbone-image-note{align-items:flex-start}}
 </style></head>
 <body>
 <div id="app"><div style="padding:40px;color:#d9f2f4;font:14px system-ui">Iniciando SAFETYOS…</div></div>
@@ -817,36 +834,8 @@ function incidentsPage(){
  return heading('BITÁCORA / REGISTRO OPERATIVO','Accidentes e incidentes','Captura el evento y localiza con precisión la región anatómica afectada.')+'<div class="grid"><article class="panel"><span class="eyebrow">NUEVO REGISTRO</span><h2>Documentar evento</h2><form data-form="incident" style="margin-top:14px"><div class="formgrid"><label class="field">Tipo<select name="kind"><option value="accidente">Accidente</option><option value="incidente">Incidente</option><option value="casi accidente">Casi accidente</option></select></label><label class="field">Fecha<input name="date" type="date" required value="'+new Date().toISOString().slice(0,10)+'"></label><label class="field full">Descripción corta<input name="title" required placeholder="Ej. Golpe durante maniobra de carga"></label><label class="field">Área<select name="area">'+data.risks.map(function(r){return '<option>'+esc(r.area)+'</option>';}).join('')+'<option>Otra / No definida</option></select></label><label class="field">Turno<select name="shift"><option>Turno A</option><option>Turno B</option><option>Turno C</option><option>Administrativo</option></select></label><label class="field">Severidad<select name="severity"><option>Leve</option><option selected>Moderada</option><option>Grave</option><option>Crítica</option></select></label><label class="field">Días perdidos<input name="lostDays" type="number" min="0" value="0"></label><label class="check-field"><input name="incapacitating" type="checkbox"> Accidente incapacitante</label></div>'+bodySelector()+'<div class="formgrid" style="margin-top:14px"><label class="field full">Descripción detallada<textarea name="description"></textarea></label><label class="field full">Acción inmediata<textarea name="immediateAction"></textarea></label></div><button class="btn">Guardar evento</button></form></article><div><article class="panel"><span class="eyebrow">INDICADORES DE BITÁCORA</span><h2>Estado de eventos</h2><div class="metric-large">'+data.incidents.length+'</div><small style="color:var(--muted)">Eventos capturados</small><div class="notice">'+data.incidents.filter(function(x){return x.status!=='cerrado';}).length+' eventos permanecen abiertos.</div><br><button class="btn secondary" data-view="investigations">Ir a investigaciones →</button></article><article class="panel"><span class="eyebrow">ANATOMÍA / FRECUENCIA</span><h2>Lesiones por región corporal</h2><div class="bars">'+anatomy+'</div></article></div></div><article class="panel"><div class="panel-head"><div><span class="eyebrow">HISTORIAL</span><h2>Registros capturados</h2></div><span class="pill">'+data.incidents.length+' registros</span></div><div class="table-wrap"><table><thead><tr><th>FECHA</th><th>EVENTO / ÁREA</th><th>REGIÓN CORPORAL</th><th>SEVERIDAD</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody>'+rows+'</tbody></table></div></article>';
 }
 function fishboneDiagram(chosen){
- var fish=chosen.ishikawa||{};
- var cats=[
-  {key:'people',name:'01 · PERSONAS',x:35,y:24,cx:195,anchor:260,top:true},
-  {key:'machine',name:'02 · MAQUINARIA',x:415,y:24,cx:575,anchor:575,top:true},
-  {key:'method',name:'03 · MÉTODO',x:795,y:24,cx:955,anchor:890,top:true},
-  {key:'materials',name:'04 · MATERIALES',x:35,y:535,cx:195,anchor:350,top:false},
-  {key:'environment',name:'05 · ENTORNO',x:415,y:535,cx:575,anchor:650,top:false},
-  {key:'measurement',name:'06 · MEDICIÓN',x:795,y:535,cx:955,anchor:950,top:false}
- ];
- var svg='<svg class="ishikawa-svg" viewBox="0 0 1200 720" role="img" aria-label="Diagrama de Ishikawa 6M ordenado en tres ramas superiores y tres inferiores, conectadas a un eje central y al efecto investigado"><defs><linearGradient id="fishbone-spine" x1="0" x2="1"><stop offset="0" stop-color="#42b7c8"/><stop offset="1" stop-color="#8be6df"/></linearGradient><filter id="fishbone-glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="fishbone-card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17394d"/><stop offset="1" stop-color="#0e2434"/></linearGradient></defs>';
- svg+='<path d="M65 360 H1010" stroke="url(#fishbone-spine)" stroke-width="8" stroke-linecap="round" filter="url(#fishbone-glow)"/><path d="M1010 360 L1040 360" stroke="#8be6df" stroke-width="8" stroke-linecap="round"/><path d="M1040 360 L1019 344 M1040 360 L1019 376" stroke="#8be6df" stroke-width="6" stroke-linecap="round"/>';
- cats.forEach(function(c){
-  var endY=c.top?190:535,dx=c.cx-c.anchor,dy=endY-360;
-  svg+='<path d="M'+c.anchor+' 360 L'+c.cx+' '+endY+'" stroke="#72d7d7" stroke-width="5" stroke-linecap="round"/>';
-  for(var j=1;j<=3;j++){var t=j/4,bx=c.anchor+dx*t,by=360+dy*t,sgn=c.top?1:-1;svg+='<path d="M'+bx+' '+by+' l '+(sgn*13)+' '+(sgn*13)+'" stroke="#3f8fa5" stroke-width="2.5" stroke-linecap="round"/>';}
-  var lines=String(fish[c.key]||'').split(/\n|;|•/).map(function(x){return x.trim();}).filter(Boolean).slice(0,4);
-  svg+='<rect x="'+c.x+'" y="'+c.y+'" width="320" height="158" rx="14" fill="url(#fishbone-card)" stroke="#47758b" stroke-width="1.5"/><rect x="'+c.x+'" y="'+c.y+'" width="320" height="4" rx="2" fill="#56cbd4"/><text x="'+(c.x+18)+'" y="'+(c.y+30)+'" fill="#8be5e5" font-size="14" font-weight="800" letter-spacing=".8">'+c.name+'</text><path d="M'+(c.x+18)+' '+(c.y+42)+' H'+(c.x+302)+'" stroke="#31556a" stroke-width="1"/>';
-  if(!lines.length)lines=['Sin causas registradas · pendiente de análisis'];
-  lines.forEach(function(line,k){
-   var words=line.split(/\s+/),parts=[],current='';
-   words.forEach(function(w){if((current+' '+w).trim().length>43&&current){parts.push(current);current=w;}else current=(current+' '+w).trim();});
-   if(current)parts.push(current);
-   var yy=c.y+67+k*22;
-   svg+='<circle cx="'+(c.x+22)+'" cy="'+(yy-4)+'" r="3.5" fill="#efc36e"/><text x="'+(c.x+34)+'" y="'+yy+'" fill="#d9e8ef" font-size="11">'+esc(parts[0]||'')+'</text>';
-   if(parts[1])svg+='<text x="'+(c.x+34)+'" y="'+(yy+12)+'" fill="#a9c4d2" font-size="9">'+esc(parts.slice(1).join(' ').slice(0,58))+'</text>';
-  });
- });
- var effect=String(chosen.eventTitle||'EFECTO / EVENTO INVESTIGADO').slice(0,34);
- svg+='<path d="M1040 360 Q1070 270 1130 300 Q1170 360 1130 420 Q1070 450 1040 360 Z" fill="#452832" stroke="#e47b85" stroke-width="3"/><circle cx="1110" cy="337" r="7" fill="#fff"/><circle cx="1112" cy="337" r="3" fill="#14202b"/><text x="1100" y="382" fill="#fff" font-size="11" font-weight="800" text-anchor="middle">'+esc(effect)+'</text><text x="600" y="710" fill="#7897a9" font-size="10" text-anchor="middle" letter-spacing="1.5">CAUSAS POTENCIALES · EVIDENCIA · VALIDACIÓN · EFECTO</text></svg>';
- return '<div class="fishbone-visual"><div class="fishbone-caption"><span><b>DIAGRAMA DE ISHIKAWA · MODELO 6M</b> Análisis causa–efecto</span><small>Seis categorías ordenadas en dos niveles y conectadas al eje central. Registra causas potenciales y valida cada una con evidencia antes de determinar la causa raíz.</small></div><div class="ishikawa-stage">'+svg+'</div></div>';
+ var effect=String(chosen.eventTitle||'Problema / efecto por analizar');
+ return '<div class="fishbone-visual fishbone-image-layout"><div class="fishbone-caption"><span><b>DIAGRAMA DE ISHIKAWA · MODELO 6M</b> Análisis causa–efecto</span><small>Plantilla visual de referencia. Captura las causas en los campos editables que aparecen debajo de la imagen.</small></div><figure class="fishbone-image-frame"><img src="ishikawa-6m.webp" alt="Diagrama profesional de Ishikawa con seis categorías: Personas, Maquinaria, Método, Materiales, Entorno y Medición, conectadas al problema o efecto" loading="lazy" decoding="async"><figcaption><span>EFECTO / EVENTO INVESTIGADO</span><b>'+esc(effect)+'</b></figcaption></figure><div class="fishbone-image-note"><span class="fishbone-image-check">6M</span><span><b>Estructura visual de análisis</b><small>Las causas no se escriben sobre la imagen: se capturan y guardan por categoría en el formulario inferior del expediente.</small></span></div></div>';
 }
 function investigationsPage(){
  var cats=[['people','1. Personas','Competencia, capacitación, fatiga, comunicación, supervisión.'],['machine','2. Maquinaria','Guardas, mantenimiento, herramientas, diseño, fallas.'],['method','3. Método','Procedimientos, permisos, secuencia, instrucciones.'],['materials','4. Materiales','Materia prima, sustancias, almacenamiento, identificación.'],['environment','5. Medio ambiente','Iluminación, ruido, temperatura, orden, espacio.'],['measurement','6. Medición','Inspecciones, indicadores, calibración, seguimiento.']];
