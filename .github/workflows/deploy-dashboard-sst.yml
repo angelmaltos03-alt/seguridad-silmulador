@@ -39,6 +39,19 @@ jobs:
         working-directory: dashboard-sst
         run: npm run build
 
+      - name: Validate standalone dashboard
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('dashboard-sst/index.html', 'utf8');
+          if (!html.includes('id="app"')) throw new Error('Missing application root');
+          if (html.includes('/src/main.jsx')) throw new Error('Development entry point must not be published');
+          const scripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)];
+          if (!scripts.length) throw new Error('No inline application script found');
+          for (const [, source] of scripts) new Function(source);
+          console.log('Standalone dashboard validated:', scripts.length, 'inline script(s)');
+          NODE
+
       - name: Assemble Pages site
         run: |
           mkdir -p site/dashboard-sst
