@@ -1,50 +1,26 @@
-# Dashboard SST — SafetyOS Control Tower
+# SAFETYOS — Dashboard SST
 
-Centro de mando interactivo de Seguridad y Salud en el Trabajo, construido como aplicación web responsive y desplegado mediante GitHub Pages.
+Centro de mando de Seguridad y Salud en el Trabajo. Aplicación web responsive publicada con GitHub Pages.
 
-## Stack tecnológico
+## Módulos
 
-- **HTML5 semántico:** estructura de interfaz con `header`, `main`, `nav`, `aside` y `section`.
-- **CSS3:** diseño industrial oscuro, profundidad visual, paneles glass, animaciones, estados hover y adaptación móvil.
-- **JavaScript ES6+:** lógica de indicadores, eventos, exportación CSV y actualización del panel.
-- **React 18 + JSX:** componentes e interfaz reactiva.
-- **Three.js / WebGL:** escena 3D de una planta industrial con maquinaria, transportadores, almacenamiento, trabajador, señalización y punto de riesgo pulsante. Arrastra la escena para cambiar su orientación.
-- **Recharts:** visualización de datos e indicadores.
-- **Tailwind CSS + Vite:** utilidades de estilo y empaquetado de producción.
-
-## Ejecución local
-
-```bash
-cd dashboard-sst
-npm install
-npm run dev
-```
-
-Para compilar y revisar el resultado:
-
-```bash
-npm run build
-npm run preview
-```
+- Centro de mando con indicadores, eventos recientes y distribución de riesgos.
+- **Mapa / Layout de riesgos:** carga un plano de planta en PNG, JPG o WEBP; registra, edita y elimina áreas; coloca los marcadores haciendo clic sobre el plano; clasifica los riesgos con probabilidad, severidad y exposición.
+- **Accidentes e incidentes:** captura tipo, fecha, área, turno, severidad, días perdidos, descripción y acciones inmediatas.
+- **Localización anatómica:** esquema corporal con vistas anterior y posterior; catálogo por cabeza/cara, tronco, extremidades superiores e inferiores; selección de lateralidad izquierda, centro o derecha.
+- **Investigaciones:** 5 porqués, causa raíz y acciones correctivas/preventivas.
+- **Simulador de riesgos**, matriz de seguimiento normativo y reportes CSV/JSON/PDF.
 
 ## Publicación
 
-El workflow `.github/workflows/deploy-dashboard-sst.yml` compila esta aplicación y la publica en:
+La aplicación autónoma se sirve desde `dashboard-sst/index.html`. GitHub Actions compila y valida el JavaScript antes de publicar.
 
-https://angelmaltos03-alt.github.io/seguridad-silmulador/dashboard-sst/
-
-La fuente de publicación debe ser **GitHub Actions** en Settings → Pages → Build and deployment.
-
-El sitio principal del repositorio conserva la simulación industrial que ya existía.
+URL: https://angelmaltos03-alt.github.io/seguridad-silmulador/dashboard-sst/
 
 ## Datos y privacidad
 
-- Los valores que aparecen al iniciar son datos de demostración.
-- Los cambios se mantienen en el estado de la sesión del navegador; esta versión no tiene base de datos ni sincronización entre usuarios.
-- El botón de descarga genera un archivo CSV de resumen.
-- No cargues información personal o registros reales de trabajadores en un sitio público. Antes de utilizarlo operativamente, valida los indicadores, las fórmulas y los criterios normativos con el responsable de SST.
-
-
-## Publicación
-
-La aplicación pública se sirve desde `index.html` autónomo: no depende de rutas de desarrollo, React en el navegador ni archivos externos para iniciar. El flujo de GitHub Actions valida el JavaScript de arranque antes de publicar.
+- Los registros y el plano cargado se guardan en el almacenamiento local del navegador.
+- El plano se reduce y comprime antes de guardarse para limitar el espacio ocupado.
+- La información **no se sincroniza entre usuarios ni dispositivos**. Para operación multiusuario se requiere conectar una base de datos y autenticación en la nube.
+- Las áreas iniciales son datos de demostración. Sustituye los ejemplos y valida los criterios de evaluación y referencias normativas antes de utilizar el sistema en operación.
+- No cargues información personal sensible de trabajadores en una página pública.
