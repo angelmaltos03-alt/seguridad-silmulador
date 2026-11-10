@@ -308,7 +308,7 @@ function securityCross(compact){
  pattern.forEach(function(cols,row){cols.forEach(function(col){positions.push({x:col,y:row});});});
  var tiles=positions.map(function(p){
   var d=day++,key=safetyMonth+'-'+String(d).padStart(2,'0'),saved=data.safetyDays&&data.safetyDays[key],dayEvents=events.filter(function(x){return x.date===key;}),hasAcc=dayEvents.some(function(x){return x.kind==='accidente';}),hasOther=dayEvents.some(function(x){return x.kind!=='accidente';});
-  var status=hasAcc?'accidente':hasOther?'incidente':saved?saved.status:'sin-accidente',incap=hasAcc?dayEvents.some(function(x){return x.incapacitating===true;}):!!(saved&&saved.incapacitating);
+  var status=saved?saved.status:(hasAcc?'accidente':hasOther?'incidente':'sin-accidente'),incap=saved?saved.incapacitating===true:dayEvents.some(function(x){return x.incapacitating===true;});
   var cls=status==='accidente'?(incap?'cross-accident-disabled':'cross-accident'):(status==='incidente'||status==='casi-accidente')?'cross-incident':status==='sin-accidente'?'cross-safe':'cross-future';
   if(!saved&&!dayEvents.length&&key>todayKey)cls='cross-future';
   if(data.safetyStartDate&&key<data.safetyStartDate&&!saved&&!dayEvents.length)cls='cross-outside';
@@ -316,7 +316,7 @@ function securityCross(compact){
   var label=status==='accidente'?(incap?'Accidente incapacitante':'Accidente no incapacitante'):status==='incidente'?'Incidente':status==='casi-accidente'?'Casi accidente':status==='sin-accidente'?'Sin accidente':'Pendiente';
   if(d>maxDays){cls='cross-outside';short='—';label='Fecha no existente';}
   var selected=selectedSafetyDate===key;
-  return '<button type="button" class="cross-day '+cls+(selected?' selected':'')+(d===16?' cross-center-day':'')+'" style="grid-column:'+(p.x+1)+';grid-row:'+(p.y+1)+'" data-safety-day="'+key+'" aria-label="'+key+' · '+label+'" title="'+key+' · '+label+'"><b>'+String(d).padStart(2,'0')+'</b><small>'+short+'</small></button>';
+  return '<button type="button" class="cross-day '+cls+(selected?' selected':'')+(d===16?' cross-center-day':'')+'" style="grid-column:'+(p.x+1)+';grid-row:'+(p.y+1)+'" data-safety-day="'+key+'" aria-label="'+key+' · '+label+'" title="'+key+' · '+label+'" '+(d>maxDays?'disabled':'')+'><b>'+String(d).padStart(2,'0')+'</b><small>'+short+'</small></button>';
  }).join('');
  var m=safetyMetrics(),dayEvents=events.length,accMonth=m.monthAccidents,otherMonth=events.filter(function(x){return x.kind!=='accidente';}).length;
  var prev=new Date(yy,mm-2,1),next=new Date(yy,mm,1);
@@ -326,7 +326,7 @@ function layoutPage(){return heading('INSTALACIONES / CONFIGURACIÓN VISUAL','La
 function safetyPage(){
  if(!selectedSafetyDate||selectedSafetyDate.slice(0,7)!==safetyMonth)selectedSafetyDate=safetyMonth+'-01';
  var m=safetyMetrics(),monthLabel=new Date(Number(safetyMonth.slice(0,4)),Number(safetyMonth.slice(5,7))-1,1).toLocaleDateString('es-MX',{month:'long',year:'numeric'}),saved=(data.safetyDays||{})[selectedSafetyDate]||{},dayEvents=data.incidents.filter(function(x){return x.date===selectedSafetyDate;}),hasAcc=dayEvents.some(function(x){return x.kind==='accidente';});
- var status=hasAcc?'accidente':saved.status||(dayEvents.length?'incidente':'sin-accidente'),accType=saved.accidentType||'otro',selectedDateLabel=new Date(selectedSafetyDate+'T12:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ var status=saved.status||(hasAcc?'accidente':dayEvents.length?'incidente':'sin-accidente'),accType=saved.accidentType||'otro',selectedDateLabel=new Date(selectedSafetyDate+'T12:00:00').toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
  var types=[['caida-mismo-nivel','Caída al mismo nivel'],['caida-distinto-nivel','Caída a distinto nivel'],['golpe','Golpeado por / contra'],['atrapamiento','Atrapamiento'],['cortadura','Cortadura / punción'],['sobreesfuerzo','Sobreesfuerzo / ergonomía'],['quemadura','Quemadura'],['electrico','Contacto eléctrico'],['quimico','Exposición a sustancias'],['vehicular','Accidente vehicular'],['proyeccion','Proyección de partículas'],['otro','Otro / no especificado']];
  var typeOptions=types.map(function(x){return '<option value="'+x[0]+'"'+(accType===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('');
  var quick='<div class="quick-day-status"><span>CLASIFICACIÓN RÁPIDA</span><button type="button" class="quick-status safe" data-action="quick-safety-status" data-status="sin-accidente">✓ Sin accidente</button><button type="button" class="quick-status incident" data-action="quick-safety-status" data-status="incidente">• Incidente</button><button type="button" class="quick-status near" data-action="quick-safety-status" data-status="casi-accidente">! Casi accidente</button><button type="button" class="quick-status accident" data-action="quick-safety-status" data-status="accidente">× Accidente</button></div>';
