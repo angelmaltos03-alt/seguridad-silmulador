@@ -30,7 +30,6 @@
 <div id="app"><div style="padding:40px;color:#d9f2f4;font:14px system-ui">Iniciando SAFETYOS…</div></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 (function(){
 'use strict';
@@ -111,27 +110,7 @@ function mergeCatalog(base,saved){
  existing.forEach(function(item){if(!merged.some(function(x){return x.id===item.id;}))merged.push(item);});
  return merged;
 }
-var MONTHS_ES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-function makeScheduleFor(frequency,startDate,dueDate){
- var months={},freq=String(frequency||'').toLowerCase(),chosen=[];
- if(freq.indexOf('semanal')>=0||freq.indexOf('mensual')>=0)chosen=[1,2,3,4,5,6,7,8,9,10,11,12];
- else if(freq.indexOf('bimestral')>=0)chosen=[1,3,5,7,9,11];
- else if(freq.indexOf('trimestral')>=0)chosen=[1,4,7,10];
- else if(freq.indexOf('semestral')>=0)chosen=[1,7];
- else {var date=dueDate||startDate||'',mm=date&&/^\d{4}-\d{2}/.test(date)?Number(date.slice(5,7)):1;chosen=[Math.max(1,Math.min(12,mm||1))];}
- chosen.forEach(function(m){months[String(m)]=freq.indexOf('semanal')>=0?[1,2,3,4]:[1];});
- return months;
-}
-function taskWeekStats(task){
- var planned=0,done=0,plan=task.scheduleWeeks||{},finished=task.completedWeeks||{};
- Object.keys(plan).forEach(function(m){(plan[m]||[]).forEach(function(w){planned++;if(finished[String(m)+'-'+String(w)])done++;});});
- return {planned:planned,done:done,pending:Math.max(0,planned-done),percent:planned?Math.round(done/planned*100):0};
-}
-function monthWeekStats(tasks,month){
- var planned=0,done=0;tasks.forEach(function(t){var ws=(t.scheduleWeeks||{})[String(month)]||[];ws.forEach(function(w){planned++;if((t.completedWeeks||{})[String(month)+'-'+String(w)])done++;});});
- return {planned:planned,done:done,percent:planned?Math.round(done/planned*100):0};
-}
-function normalizeData(saved){
+function normalizeData(saved){function normalizeData(saved){
  var out=Object.assign(clone(defaults),saved||{});
  out.company=out.company||defaults.company;out.responsible=out.responsible||'';out.responsibleRole=out.responsibleRole||'';out.companyLogo=out.companyLogo||'';out.setupComplete=!!out.setupComplete;
  out.risks=Array.isArray(out.risks)?out.risks:clone(defaults.risks);
@@ -139,7 +118,19 @@ function normalizeData(saved){
  out.investigations=Array.isArray(out.investigations)?out.investigations:[];
  out.compliance=mergeCatalog(defaults.compliance,out.compliance);
  out.annualPlan=Array.isArray(out.annualPlan)?out.annualPlan:clone(defaults.annualPlan);
- out.annualPlan=out.annualPlan.map(function(task){var t=Object.assign({},task);if(!t.scheduleWeeks||typeof t.scheduleWeeks!=='object')t.scheduleWeeks=makeScheduleFor(t.frequency,t.startDate,t.dueDate);if(!t.completedWeeks||typeof t.completedWeeks!=='object')t.completedWeeks={};return t;});
+ out.annualPlan=out.annualPlan.map(function(task){
+  var t=Object.assign({},task);
+  if(!t.weeklyStatus||typeof t.weeklyStatus!=='object'){
+   t.weeklyStatus={};var f=String(t.frequency||'').toLowerCase(),months=[];
+   if(f.indexOf('mensual')>=0)months=[0,1,2,3,4,5,6,7,8,9,10,11];
+   else if(f.indexOf('bimestral')>=0)months=[0,2,4,6,8,10];
+   else if(f.indexOf('trimestral')>=0)months=[0,3,6,9];
+   else if(f.indexOf('semestral')>=0)months=[0,6];
+   else if(f.indexOf('anual')>=0||f==='una vez'){var dm=t.dueDate&&/^\\d{4}-\\d{2}/.test(t.dueDate)?Number(t.dueDate.slice(5,7))-1:0;months=[Math.max(0,Math.min(11,dm))];}
+   months.forEach(function(m){t.weeklyStatus[m]={1:'programada',2:'no-programada',3:'no-programada',4:'no-programada'};});
+  }
+  return t;
+ });
  out.pipc=Object.assign(clone(defaults.pipc),out.pipc||{});
  out.pipc.items=mergeCatalog(defaults.pipc.items,out.pipc.items);
  out.elssa=Object.assign(clone(defaults.elssa),out.elssa||{});
@@ -155,10 +146,7 @@ function load(){
  }catch(e){}
  return clone(defaults);
 }
-var PROFILE_KEY='safetyos.profile.v1';
-function loadProfile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');}catch(e){return null;}}
-var data=load(),view='overview',annualMonth=(new Date().getMonth()),selected='production',bodyView='front',selectedBodyPart='',selectedBodyLateral='No especificado',pendingMapPoint=null,selectedInvestigation='',safetyMonth=(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')),profile=loadProfile(),pendingCompanyLogo=undefined,user=(profile&&profile.responsible)||localStorage.getItem('safetyos.name')||'Usuario local';
-var LINKEDIN_URL='https://www.linkedin.com/in/jose-angel-sifuentes-maltos-a80188170/';
+var data=load(),view='overview',annualMonth=(new Date().getMonth()),selected='production',bodyView='front',selectedBodyPart='',selectedBodyLateral='No especificado',pendingMapPoint=null,selectedInvestigation='',safetyMonth=(new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')),user=localStorage.getItem('safetyos.name')||'Usuario local',editingProfile=false;
 var app=document.getElementById('app');
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function id(){return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2);}
@@ -174,7 +162,7 @@ function shell(page){
  var nav=[['overview','◈','Centro de mando'],['layout','▧','Layout de planta'],['map','⌖','Mapa de riesgos'],['incidents','⚑','Accidentes e incidentes'],['investigations','⌕','Investigaciones'],['safety','✚','Cruz de seguridad'],['annual','▦','Plan anual de trabajo'],['pipc','⌂','Protección Civil / PIPC'],['elssa','✚','ELSSA · IMSS'],['simulator','◎','Simulador de riesgos'],['compliance','▤','Cumplimiento normativo'],['reports','▧','Reportes y respaldos']];
  var active=nav.map(function(n){return '<button class="'+(view===n[0]?'active':'')+'" data-view="'+n[0]+'"><span class="ico">'+n[1]+'</span>'+n[2]+'</button>';}).join('');
  var logo=data.companyLogo?'<img class="company-logo" src="'+data.companyLogo+'" alt="Logo de '+esc(data.company)+'">':'<div class="company-logo-fallback">'+esc((data.company||'E').slice(0,1).toUpperCase())+'</div>';
- app.innerHTML='<div class="shell"><aside class="sidebar"><div class="brand"><div class="brand-mark">S</div><div><b>SAFETY <span>OHS</span></b><small>POWER BI · SST INTELLIGENCE</small></div></div><div class="side-label">CENTRO DE OPERACIONES</div><nav class="nav">'+active+'</nav><div class="side-bottom"><span class="live-dot"></span>ALMACENAMIENTO LOCAL ACTIVO<br><br>PREVENCIÓN · CONTROL · MEJORA<br><a href="https://www.linkedin.com/in/jose-angel-sifuentes-maltos-a80188170/" target="_blank" rel="noopener">LinkedIn · Safety OHS ↗</a></div></aside><main class="main"><header class="topbar"><div class="company-head">'+logo+'<div><div class="crumb">SAFETY OHS <span>/</span> '+esc((nav.find(function(n){return n[0]===view})||nav[0])[2].toUpperCase())+'</div><div class="company">'+esc(data.company)+'</div><small class="company-responsible">'+esc(data.responsible)+' · '+esc(data.responsibleRole)+'</small></div></div><div class="profile"><div><b>'+esc(user)+'</b><small>Usuario de este dispositivo</small></div><button class="ghost" data-action="profile">Perfil / logo</button></div></header><section class="content">'+page+'</section><footer class="footer"><span>SAFETY OHS · POWER BI · <a href="https://www.linkedin.com/in/jose-angel-sifuentes-maltos-a80188170/" target="_blank" rel="noopener">LINKEDIN</a></span><span>DATOS LOCALES · '+new Date().toLocaleDateString('es-MX')+'</span></footer></main></div>';
+ app.innerHTML='<div class="shell"><aside class="sidebar"><div class="brand"><div class="brand-mark">S</div><div><b>SAFETY <span>OHS</span></b><small>POWER BI · SST INTELLIGENCE</small></div></div><div class="side-label">CENTRO DE OPERACIONES</div><nav class="nav">'+active+'</nav><div class="side-bottom"><span class="live-dot"></span>ALMACENAMIENTO LOCAL ACTIVO<br><br>PREVENCIÓN · CONTROL · MEJORA<br><a href="https://www.linkedin.com/in/jose-angel-sifuentes-maltos-a80188170/" target="_blank" rel="noopener">LinkedIn · Safety OHS ↗</a></div></aside><main class="main"><header class="topbar"><div class="company-head">'+logo+'<div><div class="crumb">SAFETY OHS <span>/</span> '+esc((nav.find(function(n){return n[0]===view})||nav[0])[2].toUpperCase())+'</div><div class="company">'+esc(data.company)+'</div><small class="company-responsible">'+esc(data.responsible)+' · '+esc(data.responsibleRole)+'</small></div></div><div class="profile"><div><b>'+esc(user)+'</b><small>'+esc(data.responsibleRole)+'</small></div><button class="ghost" data-action="profile">Perfil / logo</button></div></header><section class="content">'+page+'</section><footer class="footer"><span>SAFETY OHS · POWER BI · <a href="https://www.linkedin.com/in/jose-angel-sifuentes-maltos-a80188170/" target="_blank" rel="noopener">LINKEDIN</a></span><span>DATOS LOCALES · '+new Date().toLocaleDateString('es-MX')+'</span></footer></main></div>';
 }
 function mapCanvas(){
  var pos=[[14,28],[69,22],[77,68],[28,77],[48,48],[88,39]];
@@ -341,10 +329,11 @@ function reportsPage(){
  return heading('DOCUMENTACIÓN / EXPORTACIÓN','Reportes y respaldos','Descarga tus registros y prepara informes para revisión interna.')+'<div class="two"><article class="panel"><span class="eyebrow">PLANIFICACIÓN SST</span><h2>Plan anual de trabajo</h2><p style="color:var(--muted);font-size:10px">Exporta el calendario por semanas y el resumen mensual de cumplimiento en un libro compatible con Excel.</p><button class="btn secondary" data-view="annual">Abrir calendario y exportar Excel</button></article><article class="panel"><span class="eyebrow">PROTECCIÓN CIVIL</span><h2>PIPC / ELSSA</h2><p style="color:var(--muted);font-size:10px">Consulta los controles y seguimientos de cada programa.</p><div class="btnrow"><button class="btn secondary" data-view="pipc">PIPC</button><button class="btn secondary" data-view="elssa">ELSSA</button></div></article><article class="panel"><span class="eyebrow">IDENTIDAD DE EMPRESA</span><h2>Logotipo institucional</h2><p style="color:var(--muted);font-size:10px">Carga o reemplaza el logo que aparece en la cabecera del centro de mando.</p><label class="btn secondary upload-label">Subir / cambiar logo<input type="file" accept="image/png,image/jpeg,image/webp" data-company-logo hidden></label></article><article class="panel"><span class="eyebrow">RESPALDO TOTAL</span><h2>Exportar información</h2><p style="color:var(--muted);font-size:10px">Crea una copia JSON con los datos guardados en este navegador.</p><button class="btn" data-action="backup">Descargar respaldo JSON</button></article><article class="panel"><span class="eyebrow">BITÁCORA</span><h2>Exportar eventos</h2><p style="color:var(--muted);font-size:10px">CSV compatible con Excel y otras hojas de cálculo.</p><button class="btn secondary" data-action="csv">Descargar eventos CSV</button></article><article class="panel"><span class="eyebrow">INFORME EJECUTIVO</span><h2>Guardar como PDF</h2><p style="color:var(--muted);font-size:10px">Abre el diálogo de impresión del navegador para guardar el resumen como PDF.</p><button class="btn secondary" data-action="print">Imprimir / Guardar PDF</button></article><article class="panel"><span class="eyebrow">INDICADORES</span><h2>Resumen actual</h2><div class="bars"><div class="barrow"><span>Eventos</span><b>'+data.incidents.length+'</b></div><div class="barrow"><span>Investigaciones</span><b>'+data.investigations.length+'</b></div><div class="barrow"><span>Zonas</span><b>'+data.risks.length+'</b></div><div class="barrow"><span>Normas</span><b>'+data.compliance.length+'</b></div></div></article></div><article class="panel"><span class="eyebrow">REPORTE PARA IMPRESIÓN</span><h2>Informe SST · '+esc(data.company)+'</h2><p style="color:var(--muted);font-size:10px">Generado el '+new Date().toLocaleString('es-MX')+'</p><div class="stats">'+stat('Eventos',data.incidents.length,'Registros','↗','cyan')+stat('Investigaciones',data.investigations.length,'Expedientes','⌕','amber')+stat('Zonas',data.risks.length,'Áreas evaluadas','⌖','red')+stat('Cumplimiento',data.compliance.filter(function(x){return x.status==='cumplido';}).length,'Referencias marcadas','✓','green')+'</div></article>';
 }
 function setupPage(){
- app.innerHTML='<main class="setup-screen"><section class="setup-card"><div class="setup-brand"><div class="brand-mark">S</div><div><h1>SAFETY OHS</h1><p>POWER BI · CENTRO DE GESTIÓN SST</p></div></div><span class="eyebrow">CONFIGURACIÓN INICIAL DEL CENTRO DE TRABAJO</span><h2>Comencemos con los datos de tu empresa</h2><p class="setup-intro">Esta información personaliza el panel y sus reportes. Puedes cambiarla después. Los datos se guardan en este navegador.</p><form data-form="setup"><label class="field">Nombre de la empresa<input name="company" required placeholder="Razón social o nombre comercial"></label><label class="field">Responsable del centro de trabajo<input name="responsible" required placeholder="Nombre de quien administra el sistema"></label><label class="field">Cargo del responsable<input name="responsibleRole" required placeholder="Ej. Responsable de Seguridad y Salud"></label><label class="field">Logotipo de la empresa (opcional)<input type="file" accept="image/png,image/jpeg,image/webp" data-company-logo></label><button class="btn" type="submit">Guardar y entrar al centro de mando →</button></form><div class="setup-footer">Desarrollado por <b>Safety OHS · Power BI</b> · <a href="https://www.linkedin.com/in/jose-angel-sifuentes-maltos-a80188170/" target="_blank" rel="noopener">LinkedIn</a></div></section></main>';
+ var edit=editingProfile,logo=data.companyLogo?'<img class="setup-logo-preview" id="setup-logo-preview" src="'+data.companyLogo+'" alt="Logotipo de la empresa">':'<div class="setup-logo-empty" id="setup-logo-preview">LOGO</div>';
+ app.innerHTML='<main class="setup-screen"><section class="setup-card"><div class="setup-brand"><div class="brand-mark">S</div><div><h1>SAFETY OHS</h1><p>POWER BI · CENTRO DE GESTIÓN SST</p></div></div><span class="eyebrow">'+(edit?'PERFIL DE EMPRESA':'CONFIGURACIÓN INICIAL DEL CENTRO DE TRABAJO')+'</span><h2>'+(edit?'Actualiza la identidad de tu empresa':'Comencemos con los datos de tu empresa')+'</h2><p class="setup-intro">Esta información personaliza el panel y sus reportes. El logotipo aparece en la cabecera. Los datos se guardan en este navegador.</p><form data-form="setup"><label class="field">Nombre de la empresa<input name="company" required maxlength="120" value="'+esc(data.company)+'" placeholder="Razón social o nombre comercial"></label><label class="field">Responsable del centro de trabajo<input name="responsible" required maxlength="100" value="'+esc(data.responsible)+'" placeholder="Nombre de quien administra el sistema"></label><label class="field">Cargo del responsable<input name="responsibleRole" required maxlength="100" value="'+esc(data.responsibleRole)+'" placeholder="Ej. Responsable de Seguridad y Salud"></label><div class="field"><span>Logotipo de la empresa (opcional)</span><div class="setup-logo-row">'+logo+'<label class="btn secondary upload-label">Subir / cambiar logo<input type="file" accept="image/png,image/jpeg,image/webp" data-company-logo hidden></label></div><small class="field-hint">PNG, JPG o WEBP. El sistema ajusta la imagen para el encabezado.</small></div><div class="setup-actions">'+(edit?'<button class="btn secondary" type="button" data-action="cancel-profile">Cancelar</button>':'')+'<button class="btn" type="submit">'+(edit?'Guardar cambios':'Guardar y entrar al centro de mando')+' →</button></div></form><div class="setup-footer">SAFETY OHS · POWER BI · <a href="https://www.linkedin.com/in/jose-angel-sifuentes-maltos-a80188170/" target="_blank" rel="noopener">LinkedIn</a></div></section></main>';
 }
-function render(){
- if(!data.setupComplete){setupPage();return;}
+function render(){function render(){
+ if(!data.setupComplete||editingProfile){setupPage();return;}
  var page=view==='overview'?overview():view==='layout'?layoutPage():view==='map'?mapPage():view==='incidents'?incidentsPage():view==='investigations'?investigationsPage():view==='safety'?safetyPage():view==='annual'?annualPlanPage():view==='pipc'?pipcPage():view==='elssa'?elssaPage():view==='simulator'?simulatorPage():view==='compliance'?compliancePage():reportsPage();
  shell(page);
 }
@@ -377,7 +366,7 @@ function download(name,blob){var url=URL.createObjectURL(blob),a=document.create
 function onSubmit(e){
  var f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();
  var kind=f.getAttribute('data-form'),fd=new FormData(f),v={};fd.forEach(function(x,k){v[k]=x;});
- if(kind==='setup'){data.company=v.company.trim();data.responsible=v.responsible.trim();data.responsibleRole=v.responsibleRole.trim();data.setupComplete=true;user=data.responsible;localStorage.setItem('safetyos.name',user);showToast('Centro de trabajo configurado.');
+ if(kind==='setup'){data.company=v.company.trim();data.responsible=v.responsible.trim();data.responsibleRole=v.responsibleRole.trim();data.setupComplete=true;editingProfile=false;user=data.responsible;localStorage.setItem('safetyos.name',user);showToast('Perfil de empresa guardado.');
  }else if(kind==='incident'){
   data.incidents.unshift({id:id(),kind:v.kind,date:v.date,title:v.title,area:v.area,shift:v.shift,severity:v.severity,incapacitating:v.incapacitating==='on',bodyPart:v.bodyPart||'No especificada',bodySide:v.bodySide||'Anterior',bodyLateral:v.bodyLateral||'No especificado',lostDays:Number(v.lostDays)||0,description:v.description,immediateAction:v.immediateAction,status:'abierto',createdAt:new Date().toISOString()});selectedBodyPart='';selectedBodyLateral='No especificado';showToast('Evento guardado correctamente.');
  }else if(kind==='risk-edit'){
@@ -422,7 +411,8 @@ function onClick(e){
  if(a==='delete-incident'){if(confirm('¿Eliminar este registro?')){data.incidents=data.incidents.filter(function(x){return x.id!==b.dataset.id;});save();render();}}
  if(a==='toggle-investigation'){data.investigations=data.investigations.map(function(x){return x.id===b.dataset.id?Object.assign({},x,{status:x.status==='cerrada'?'abierta':'cerrada'}):x;});save();render();}
  if(a==='select-investigation'){selectedInvestigation=b.dataset.id;render();}
- if(a==='profile'){var n=prompt('Nombre del responsable:',data.responsible||user);if(n&&n.trim())data.responsible=n.trim();var role=prompt('Cargo del responsable:',data.responsibleRole||'');if(role!==null)data.responsibleRole=role.trim();var co=prompt('Nombre de la empresa:',data.company||'');if(co&&co.trim())data.company=co.trim();save();render();}
+ if(a==='profile'){editingProfile=true;render();}
+ if(a==='cancel-profile'){editingProfile=false;render();}
  if(a==='backup'){download('SafetyOS_respaldo_'+new Date().toISOString().slice(0,10)+'.json',new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));showToast('Respaldo JSON descargado.');}
  if(a==='csv'){var rows=[['Fecha','Tipo','Evento','Área','Parte del cuerpo','Vista','Lado','Turno','Severidad','Incapacitante','Días perdidos','Estado']].concat(data.incidents.map(function(x){return [x.date,x.kind,x.title,x.area,x.bodyPart,x.bodySide,x.bodyLateral,x.shift,x.severity,x.incapacitating?'Sí':'No',x.lostDays,x.status];}));var csv='\uFEFF'+rows.map(function(r){return r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');download('SafetyOS_Eventos.csv',new Blob([csv],{type:'text/csv;charset=utf-8'}));showToast('CSV descargado.');}
  if(a==='print'){window.print();}
@@ -437,7 +427,7 @@ function onChange(e){
  if(e.target.dataset.compliance){var key=e.target.dataset.compliance;data.compliance=data.compliance.map(function(x){return x.id===key?Object.assign({},x,{status:e.target.value}):x;});save();render();return;}if(e.target.dataset.annualMonth!==undefined){annualMonth=Math.max(0,Math.min(11,Number(e.target.value)||0));render();return;}if(e.target.dataset.weekState){var task=data.annualPlan.find(function(x){return x.id===e.target.dataset.weekState;});if(task){task.weeklyStatus=task.weeklyStatus||{};var mo=Number(e.target.dataset.month),wk=Number(e.target.dataset.week);task.weeklyStatus[mo]=task.weeklyStatus[mo]||{};task.weeklyStatus[mo][wk]=e.target.value;var vals=Object.keys(task.weeklyStatus).reduce(function(a,k){return a.concat(Object.values(task.weeklyStatus[k]));},[]);task.status=vals.some(function(v){return v==='programada';})?'proceso':vals.some(function(v){return v==='completada';})?'completado':'pendiente';save();render();}return;}if(e.target.dataset.annualYear){annualYear=Math.max(2020,Math.min(2100,Number(e.target.value)||new Date().getFullYear()));render();return;}if(e.target.dataset.annualStatus){data.annualPlan=data.annualPlan.map(function(x){return x.id===e.target.dataset.annualStatus?Object.assign({},x,{status:e.target.value}):x;});save();render();return;}if(e.target.dataset.pipcStatus){data.pipc.items=data.pipc.items.map(function(x){return x.id===e.target.dataset.pipcStatus?Object.assign({},x,{status:e.target.value}):x;});save();render();return;}if(e.target.dataset.pipcOwner){data.pipc.items=data.pipc.items.map(function(x){return x.id===e.target.dataset.pipcOwner?Object.assign({},x,{owner:e.target.value}):x;});save();return;}if(e.target.dataset.elssaStatus){data.elssa.items=data.elssa.items.map(function(x){return x.id===e.target.dataset.elssaStatus?Object.assign({},x,{status:e.target.value}):x;});save();render();return;}if(e.target.dataset.investigationSelect){selectedInvestigation=e.target.value;render();return;}
  if(e.target.dataset.companyLogo&&e.target.files&&e.target.files[0]){
   var lf=e.target.files[0];if(!/^image\/(png|jpeg|webp)$/.test(lf.type)){showToast('Usa un logo PNG, JPG o WEBP.');return;}
-  var lr=new FileReader();lr.onload=function(ev){var im=new Image();im.onload=function(){var sc=Math.min(1,700/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);data.companyLogo=cv.toDataURL('image/png');save();showToast('Logotipo de empresa guardado.');if(data.setupComplete)render();};im.src=ev.target.result;};lr.readAsDataURL(lf);return;
+  var lr=new FileReader();lr.onload=function(ev){var im=new Image();im.onload=function(){var sc=Math.min(1,700/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);data.companyLogo=cv.toDataURL('image/png');save();var preview=document.getElementById('setup-logo-preview');if(preview){if(preview.tagName==='IMG')preview.src=data.companyLogo;else{var pic=document.createElement('img');pic.id='setup-logo-preview';pic.className='setup-logo-preview';pic.src=data.companyLogo;pic.alt='Logotipo de la empresa';preview.replaceWith(pic);}}showToast('Logotipo de empresa guardado.');if(data.setupComplete&&!editingProfile)render();};im.src=ev.target.result;};lr.readAsDataURL(lf);return;
  }
  if(e.target.dataset.layoutUpload&&e.target.files&&e.target.files[0]){
   var file=e.target.files[0];if(!/^image\/(png|jpeg|webp)$/.test(file.type)){showToast('Formato no compatible. Usa PNG, JPG o WEBP.');return;}
