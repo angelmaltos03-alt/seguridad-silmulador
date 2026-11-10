@@ -84,14 +84,14 @@ function bodySelector(){
  ['pierna','Pierna / pantorrilla',80,375],['pierna','Pierna / pantorrilla',140,375],['tobillo','Tobillo',78,414],['tobillo','Tobillo',142,414],
  ['pie','Pie',62,430],['pie','Pie',158,430],['dedos_pie','Dedos del pie',57,439],['dedos_pie','Dedos del pie',163,439]
  ];
- var hotspots=regions.map(function(r){return '<button type="button" class="body-hotspot '+(selectedBodyPart===r[0]?'chosen':'')+'" style="left:'+(r[2]/220*100)+'%;top:'+(r[3]/450*100)+'%" data-bodypart="'+r[0]+'" data-bodylabel="'+esc(r[1])+'" title="'+esc(r[1])+'"></button>';}).join('');
+ var hotspots=regions.map(function(r){return '<button type="button" class="body-hotspot '+(selectedBodyPart===r[1]?'chosen':'')+'" style="left:'+(r[2]/220*100)+'%;top:'+(r[3]/450*100)+'%" data-bodypart="'+r[0]+'" data-bodylabel="'+esc(r[1])+'" title="'+esc(r[1])+'"></button>';}).join('');
  var groups=[
  ['Cabeza y cara',[['cabeza','Cabeza'],['cara','Cara'],['ojo','Ojo'],['oido','Oído'],['nariz','Nariz'],['boca','Boca'],['dientes','Dientes']]],
  ['Cuello y tronco',[['cuello','Cuello'],['torax','Tórax / pecho'],['costillas','Costillas'],['abdomen','Abdomen'],['espalda','Espalda alta'],['lumbar','Espalda baja / lumbar'],['columna','Columna'],['pelvis','Pelvis'],['ingle','Ingle']]],
  ['Extremidades superiores',[['hombro','Hombro'],['brazo','Brazo'],['codo','Codo'],['antebrazo','Antebrazo'],['muneca','Muñeca'],['mano','Mano'],['dedos','Dedos']]],
  ['Extremidades inferiores',[['cadera','Cadera'],['muslo','Muslo'],['rodilla','Rodilla'],['pierna','Pierna / pantorrilla'],['tobillo','Tobillo'],['pie','Pie'],['dedos_pie','Dedos del pie']]]
  ];
- var chips=groups.map(function(g){return '<div class="body-group"><b>'+g[0]+'</b><div>'+g[1].map(function(n){return '<button type="button" class="body-chip '+(selectedBodyPart===n[0]?'active':'')+'" data-bodypart="'+n[0]+'" data-bodylabel="'+esc(n[1])+'">'+esc(n[1])+'</button>';}).join('')+'</div></div>';}).join('');
+ var chips=groups.map(function(g){return '<div class="body-group"><b>'+g[0]+'</b><div>'+g[1].map(function(n){return '<button type="button" class="body-chip '+(selectedBodyPart===n[1]?'active':'')+'" data-bodypart="'+n[0]+'" data-bodylabel="'+esc(n[1])+'">'+esc(n[1])+'</button>';}).join('')+'</div></div>';}).join('');
  return '<div class="body-selector"><div class="body-head"><div><span class="eyebrow">LOCALIZACIÓN ANATÓMICA</span><h3>¿Qué parte del cuerpo resultó afectada?</h3><small>Selecciona una región en el esquema o utiliza el catálogo anatómico.</small></div><div class="body-tabs"><button type="button" class="'+(bodyView==='front'?'active':'')+'" data-bodyview="front">Anterior</button><button type="button" class="'+(bodyView==='back'?'active':'')+'" data-bodyview="back">Posterior</button></div></div><div class="body-layout"><div class="body-figure-wrap"><div class="body-figure-title">'+(bodyView==='front'?'VISTA ANTERIOR':'VISTA POSTERIOR')+'</div><div class="body-figure"><svg viewBox="0 0 220 450" role="img" aria-label="Silueta anatómica humana"><defs><linearGradient id="skin" x1="0" x2="1"><stop offset="0" stop-color="#557b91"/><stop offset=".5" stop-color="#9bb8c5"/><stop offset="1" stop-color="#557b91"/></linearGradient></defs><g fill="url(#skin)" stroke="#c5d9e1" stroke-width="2"><circle cx="110" cy="45" r="25"/><path d="M94 72 L126 72 L130 91 Q154 96 158 125 L151 220 Q145 237 130 241 L128 265 L145 302 L154 390 L145 431 L128 431 L125 374 L111 310 L95 374 L92 431 L75 431 L66 390 L75 302 L92 265 L90 241 Q75 237 69 220 L62 125 Q66 96 90 91 Z"/><path d="M68 105 Q49 111 43 142 L23 250 L34 256 L61 177 L78 126 Z"/><path d="M152 105 Q171 111 177 142 L197 250 L186 256 L159 177 L142 126 Z"/></g><g fill="none" stroke="#25485c" stroke-width="2" opacity=".8"><path d="M91 100 Q110 110 129 100 M83 140 Q110 153 137 140 M91 181 Q110 190 129 181 M92 225 Q110 233 128 225 M110 93 L110 229"/></g></svg>'+hotspots+'</div><div class="body-selected"><span>REGIÓN SELECCIONADA</span><b>'+esc(selectedBodyPart||'Sin seleccionar')+'</b></div></div><div class="body-catalog">'+chips+'</div></div><input type="hidden" name="bodyPart" value="'+esc(selectedBodyPart)+'"><input type="hidden" name="bodySide" value="'+(bodyView==='front'?'Anterior':'Posterior')+'"></div>';
 }
 function overview(){
@@ -140,11 +140,13 @@ function onSubmit(e){
  var f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();
  var kind=f.getAttribute('data-form'),fd=new FormData(f),v={};fd.forEach(function(x,k){v[k]=x;});
  if(kind==='incident'){
-  data.incidents.unshift({id:id(),kind:v.kind,date:v.date,title:v.title,area:v.area,shift:v.shift,severity:v.severity,bodyPart:v.bodyPart,lostDays:Number(v.lostDays)||0,description:v.description,immediateAction:v.immediateAction,status:'abierto',createdAt:new Date().toISOString()});showToast('Evento guardado correctamente.');
+  data.incidents.unshift({id:id(),kind:v.kind,date:v.date,title:v.title,area:v.area,shift:v.shift,severity:v.severity,bodyPart:v.bodyPart||'No especificada',bodySide:v.bodySide||'Anterior',lostDays:Number(v.lostDays)||0,description:v.description,immediateAction:v.immediateAction,status:'abierto',createdAt:new Date().toISOString()});showToast('Evento guardado correctamente.');
  }else if(kind==='risk-edit'){
   data.risks=data.risks.map(function(x){if(x.id!==v.id)return x;var y=Object.assign({},x,{probability:Number(v.probability),severity:Number(v.severity),exposure:Number(v.exposure),level:v.level,controls:v.controls});return y;});showToast('Evaluación de riesgo actualizada.');
  }else if(kind==='add-zone'){
-  var z={id:id(),area:v.area,description:v.description,controls:'Pendiente de definir',probability:3,severity:3,exposure:3,level:'medium'};data.risks.push(z);selected=z.id;showToast('Área agregada al mapa.');
+  var z={id:id(),area:v.area,description:v.description,controls:'Pendiente de definir',probability:Number(v.probability)||3,severity:Number(v.severity)||3,exposure:3,level:'medium',x:pendingMapPoint?pendingMapPoint.x:50,y:pendingMapPoint?pendingMapPoint.y:50};z.level=level(score(z));data.risks.push(z);selected=z.id;pendingMapPoint=null;showToast('Área agregada al mapa.');
+ }else if(kind==='map-position'){
+  data.risks=data.risks.map(function(x){return x.id===v.id&&pendingMapPoint?Object.assign({},x,{x:pendingMapPoint.x,y:pendingMapPoint.y}):x;});pendingMapPoint=null;showToast('Posición guardada en el layout.');
  }else if(kind==='investigation'){
   var inc=data.incidents.find(function(x){return x.id===v.incidentId;});data.investigations.unshift({id:id(),incidentId:v.incidentId,eventTitle:inc?inc.title:'',whys:v.whys,rootCause:v.rootCause,corrective:v.corrective,preventive:v.preventive,owner:v.owner,dueDate:v.dueDate,status:'abierta'});showToast('Investigación registrada.');
  }else if(kind==='simulator'){
@@ -153,8 +155,16 @@ function onSubmit(e){
  save();render();
 }
 function onClick(e){
- var b=e.target.closest('button');if(!b)return;
+ var b=e.target.closest('button');
+ if(e.target.closest('.layout-canvas')&&!e.target.closest('.map-pin')){
+  var canvas=e.target.closest('.layout-canvas'),rect=canvas.getBoundingClientRect();
+  pendingMapPoint={x:Math.max(2,Math.min(98,Math.round((e.clientX-rect.left)/rect.width*100))),y:Math.max(4,Math.min(96,Math.round((e.clientY-rect.top)/rect.height*100)))};
+  showToast('Punto seleccionado. Guarda la posición o crea una nueva zona.');render();return;
+ }
+ if(!b)return;
  if(b.dataset.view){view=b.dataset.view;render();return;}
+ if(b.dataset.bodyview){bodyView=b.dataset.bodyview;var old=document.querySelector('.body-selector');if(old){var holder=document.createElement('div');holder.innerHTML=bodySelector();old.replaceWith(holder.firstElementChild);}return;}
+ if(b.dataset.bodypart){selectedBodyPart=b.dataset.bodylabel||b.dataset.bodypart;var old=document.querySelector('.body-selector');if(old){var holder=document.createElement('div');holder.innerHTML=bodySelector();old.replaceWith(holder.firstElementChild);}return;}
  if(b.dataset.zone){selected=b.dataset.zone;render();return;}
  var a=b.dataset.action;if(!a)return;
  if(a==='toggle-incident'){data.incidents=data.incidents.map(function(x){return x.id===b.dataset.id?Object.assign({},x,{status:x.status==='cerrado'?'abierto':'cerrado'}):x;});save();render();}
@@ -164,9 +174,14 @@ function onClick(e){
  if(a==='backup'){download('SafetyOS_respaldo_'+new Date().toISOString().slice(0,10)+'.json',new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));showToast('Respaldo JSON descargado.');}
  if(a==='csv'){var rows=[['Fecha','Tipo','Evento','Área','Turno','Severidad','Días perdidos','Estado']].concat(data.incidents.map(function(x){return [x.date,x.kind,x.title,x.area,x.shift,x.severity,x.lostDays,x.status];}));var csv='\uFEFF'+rows.map(function(r){return r.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');download('SafetyOS_Eventos.csv',new Blob([csv],{type:'text/csv;charset=utf-8'}));showToast('CSV descargado.');}
  if(a==='print'){window.print();}
+ if(a==='remove-layout'){if(confirm('¿Quitar el plano cargado? Las zonas se conservarán.')){data.layout=null;save();render();}}
 }
 function onChange(e){
- if(e.target.dataset.compliance){var key=e.target.dataset.compliance;data.compliance=data.compliance.map(function(x){return x.id===key?Object.assign({},x,{status:e.target.value}):x;});save();render();}
+ if(e.target.dataset.compliance){var key=e.target.dataset.compliance;data.compliance=data.compliance.map(function(x){return x.id===key?Object.assign({},x,{status:e.target.value}):x;});save();render();return;}
+ if(e.target.dataset.layoutUpload&&e.target.files&&e.target.files[0]){
+  var file=e.target.files[0];if(!/^image\/(png|jpeg|webp)$/.test(file.type)){showToast('Formato no compatible. Usa PNG, JPG o WEBP.');return;}
+  var reader=new FileReader();reader.onload=function(ev){var img=new Image();img.onload=function(){var scale=Math.min(1,1500/Math.max(img.width,img.height)),w=Math.round(img.width*scale),h=Math.round(img.height*scale),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);var url=c.toDataURL('image/jpeg',.68);if(url.length>2200000)url=c.toDataURL('image/jpeg',.48);data.layout={name:file.name.replace(/\.[^.]+$/,''),imageData:url,updatedAt:new Date().toISOString()};save();render();showToast('Layout cargado. Ahora puedes ubicar tus áreas.');};img.onerror=function(){showToast('No se pudo leer la imagen.');};img.src=ev.target.result;};reader.readAsDataURL(file);
+ }
 }
 app.addEventListener('click',onClick);app.addEventListener('submit',onSubmit);app.addEventListener('change',onChange);
 window.addEventListener('error',function(e){var root=document.getElementById('app');if(root&&!root.innerHTML.trim())root.textContent='No se pudo iniciar el Dashboard SST. Recarga la página.';});
