@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import FactoryScene3D from './components/FactoryScene3D.jsx';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const DashboardSST = () => {
@@ -212,8 +213,76 @@ const DashboardSST = () => {
     document.body.removeChild(link);
   };
 
+  const irA = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 sst-app">
+      <div className="sst-layout">
+        <aside className="sst-sidebar">
+          <div className="sst-brand">
+            <div className="sst-brand-mark">S</div>
+            <div>
+              <strong>SAFETY<span>OS</span></strong>
+              <small>CONTROL TOWER 3D</small>
+            </div>
+          </div>
+
+          <div className="sst-sidebar-label">ESPACIO DE TRABAJO</div>
+          <nav className="sst-nav" aria-label="Navegación principal">
+            <button className="active" onClick={() => irA('sst-home')}><span>◈</span> Centro de mando</button>
+            <button onClick={() => irA('kpi-overview')}><span>▦</span> Indicadores SST</button>
+            <button onClick={() => irA('safety-calendar')}><span>▣</span> Cruz de seguridad</button>
+            <button onClick={() => irA('risk-analytics')}><span>⌁</span> Análisis de riesgos</button>
+            <button onClick={() => irA('sst-management')}><span>◎</span> Gestión operativa</button>
+          </nav>
+
+          <div className="sst-sidebar-spacer"></div>
+          <div className="sst-live-card">
+            <span className="sst-live-dot"></span>
+            <div><strong>SISTEMA ACTIVO</strong><small>Entorno de demostración</small></div>
+          </div>
+          <div className="sst-sidebar-footer">SAFETY INTELLIGENCE<br/><span>BUILD 2.0 · WEBGL</span></div>
+        </aside>
+
+        <main className="sst-main" id="sst-home">
+          <header className="sst-topbar">
+            <div>
+              <div className="sst-breadcrumb">OPERACIONES <span>/</span> SEGURIDAD Y SALUD</div>
+              <div className="sst-topbar-title">Panel ejecutivo <span className="sst-online-pill"><i></i> EN LÍNEA</span></div>
+            </div>
+            <div className="sst-topbar-actions">
+              <span className="sst-topbar-date">CENTRO DE CONTROL · SST</span>
+              <button className="sst-topbar-button" onClick={() => openModal('menu')}>Configurar panel <b>↗</b></button>
+            </div>
+          </header>
+
+          <section className="sst-hero">
+            <div className="sst-hero-copy">
+              <div className="sst-eyebrow"><span></span> INDUSTRIAL SAFETY INTELLIGENCE</div>
+              <h2>Seguridad que se<br/><em>puede visualizar.</em></h2>
+              <p>Un centro de mando para monitorear el desempeño, detectar desviaciones y convertir datos de seguridad en decisiones operativas.</p>
+              <div className="sst-hero-tags">
+                <span>HTML5</span><span>CSS3</span><span>REACT / JS</span><span>THREE.JS · 3D</span>
+              </div>
+              <div className="sst-hero-foot">
+                <span className="sst-hero-accent"></span>
+                <span>MODELO INDUSTRIAL INTERACTIVO</span>
+                <span className="sst-hero-foot-line"></span>
+                <span>ARRASTRA PARA GIRAR</span>
+              </div>
+            </div>
+            <div className="sst-scene-frame">
+              <div className="sst-scene-caption"><span>PLANTA / VISTA ISOMÉTRICA</span><span>LIVE 3D</span></div>
+              <FactoryScene3D />
+              <div className="sst-scene-legend">
+                <span><i className="legend-safe"></i> Zona controlada</span>
+                <span><i className="legend-risk"></i> Punto de atención</span>
+              </div>
+            </div>
+            <div className="sst-hero-index">01<span>/</span>04</div>
+          </section>
       <div className="text-center mb-4">
         <h1 className="text-4xl font-bold text-blue-400 mb-1">DASHBOARD SST</h1>
         <h2 className="text-3xl font-bold text-red-500 mb-2">SEGURIDAD Y SALUD EN EL TRABAJO</h2>
@@ -276,7 +345,7 @@ const DashboardSST = () => {
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-3 mb-4 max-w-6xl mx-auto">
+      <div id="kpi-overview" className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-3 mb-4 max-w-6xl mx-auto">
         <h3 className="text-white font-bold text-center mb-2">INDICADORES NORMATIVOS NOM-030-STPS</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           <div className="bg-white rounded p-2 text-center">
@@ -302,7 +371,7 @@ const DashboardSST = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3 max-w-6xl mx-auto">
+      <div id="risk-analytics" className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3 max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-xl p-3">
           <h3 className="font-bold text-gray-800 text-sm mb-2">🔬 Investigación NOM-004</h3>
           <div className="space-y-2">
@@ -361,7 +430,7 @@ const DashboardSST = () => {
       </div>
 
       {/* NUEVA SECCIÓN: CRUZ DE SEGURIDAD */}
-      <div className="bg-white rounded-lg shadow-xl p-4 mb-3 max-w-6xl mx-auto">
+      <div id="safety-calendar" className="bg-white rounded-lg shadow-xl p-4 mb-3 max-w-6xl mx-auto">
         <h3 className="font-bold text-gray-800 text-lg mb-3 text-center">🛡️ CRUZ DE SEGURIDAD - {periodo2}</h3>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
@@ -504,7 +573,7 @@ const DashboardSST = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3 max-w-6xl mx-auto">
+      <div id="sst-management" className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3 max-w-6xl mx-auto">
         <div className="bg-white rounded-lg shadow-xl p-3">
           <h3 className="font-bold text-gray-800 text-sm mb-2">📋 Clasificación STPS</h3>
           <ResponsiveContainer width="100%" height={180}>
@@ -1450,6 +1519,8 @@ const DashboardSST = () => {
           </div>
         </div>
       )}
+        </main>
+      </div>
     </div>
   );
 };
