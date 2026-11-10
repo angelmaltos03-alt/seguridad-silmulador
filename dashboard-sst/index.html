@@ -64,6 +64,31 @@
 @media(max-width:700px){.safety-cross-board{grid-template-rows:repeat(7,minmax(34px,1fr));gap:4px;padding:8px;border-radius:12px}.cross-day{border-radius:5px}.cross-day small{font-size:6px}.cross-month-head h3{font-size:17px}.cross-month-controls{width:100%;justify-content:space-between}.quick-status{flex:1 1 calc(50% - 8px);padding:10px 6px}}
 @media(max-width:390px){.safety-cross-board{grid-template-rows:repeat(7,minmax(29px,1fr));gap:3px;padding:6px}.cross-day b{font-size:11px}.cross-day small{font-size:5px}.cross-month-stats{gap:7px 12px}}
 
+
+/* SAFETY EHS · Investigación de accidentes / Ishikawa 6M */
+.fishbone-visual{overflow-x:auto;padding:clamp(10px,2vw,18px);border:1px solid #294b60;border-radius:15px;background:radial-gradient(ellipse at 50% 48%,#14384b 0,#0b1d2b 72%);scrollbar-color:#42677b #0b1d2b}
+.ishikawa-svg{width:100%;height:auto;min-width:760px;display:block}
+.fishbone-caption{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:0 0 12px;padding:0 2px}
+.fishbone-caption span{display:grid;gap:3px;color:#dceaf2;font-size:12px}.fishbone-caption b{font-size:11px;letter-spacing:.12em;color:#79dfe1}
+.fishbone-caption small{max-width:440px;color:#8fa9ba;font-size:9px;line-height:1.5}
+.fishbone-wrap{display:grid;gap:12px}
+.fishbone-root{display:grid;grid-template-columns:minmax(140px,210px) 1fr;gap:12px;align-items:center;padding:13px 15px;border:1px solid #75505a;border-radius:10px;background:linear-gradient(90deg,#38252e,#182a39)}
+.fishbone-root b{font-size:9px;letter-spacing:.12em;color:#ffc0b9}.fishbone-root span{font-size:12px;color:#f0e6e7;line-height:1.5}
+.analysis-section{margin-top:22px;padding-top:18px;border-top:1px solid #263f52}
+.analysis-section>h2{margin:6px 0 10px}
+.why-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.why-step{padding:12px;border:1px solid #29465b;border-radius:10px;background:#0b1e2d}
+.why-step:first-child{grid-column:1/-1;border-color:#39758a}
+.why-step textarea{min-height:65px}
+.fishbone-input{padding:13px;border:1px solid #29465b;border-radius:10px;background:#0b1e2d;min-width:0}
+.fishbone-input>span{display:block;color:#8de5e7;font-weight:800;font-size:11px;letter-spacing:.03em}
+.fishbone-input>small{display:block;min-height:28px;margin:5px 0 9px;color:#8fa9ba;font-size:9px;line-height:1.45}
+.fishbone-input textarea{min-height:80px}
+.why-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.why-result{display:grid;gap:5px;padding:11px;border:1px solid #29465b;border-radius:8px;background:#0b1e2d}
+.why-result b{font-size:9px;color:#79dfe1;letter-spacing:.06em}.why-result span{font-size:11px;line-height:1.5;color:#d3e2ea;overflow-wrap:anywhere}
+@media(max-width:700px){.ishikawa-svg{min-width:760px}.why-form,.why-results{grid-template-columns:1fr}.why-step:first-child{grid-column:auto}.fishbone-root{grid-template-columns:1fr;gap:6px}}
+
 </style>
 </head>
 <body>
@@ -343,20 +368,53 @@ function incidentsPage(){
  return heading('BITÁCORA / REGISTRO OPERATIVO','Accidentes e incidentes','Captura el evento y localiza con precisión la región anatómica afectada.')+'<div class="grid"><article class="panel"><span class="eyebrow">NUEVO REGISTRO</span><h2>Documentar evento</h2><form data-form="incident" style="margin-top:14px"><div class="formgrid"><label class="field">Tipo<select name="kind"><option value="accidente">Accidente</option><option value="incidente">Incidente</option><option value="casi accidente">Casi accidente</option></select></label><label class="field">Fecha<input name="date" type="date" required value="'+new Date().toISOString().slice(0,10)+'"></label><label class="field full">Descripción corta<input name="title" required placeholder="Ej. Golpe durante maniobra de carga"></label><label class="field">Área<select name="area">'+data.risks.map(function(r){return '<option>'+esc(r.area)+'</option>';}).join('')+'<option>Otra / No definida</option></select></label><label class="field">Turno<select name="shift"><option>Turno A</option><option>Turno B</option><option>Turno C</option><option>Administrativo</option></select></label><label class="field">Severidad<select name="severity"><option>Leve</option><option selected>Moderada</option><option>Grave</option><option>Crítica</option></select></label><label class="field">Días perdidos<input name="lostDays" type="number" min="0" value="0"></label><label class="check-field"><input name="incapacitating" type="checkbox"> Accidente incapacitante</label></div>'+bodySelector()+'<div class="formgrid" style="margin-top:14px"><label class="field full">Descripción detallada<textarea name="description"></textarea></label><label class="field full">Acción inmediata<textarea name="immediateAction"></textarea></label></div><button class="btn">Guardar evento</button></form></article><div><article class="panel"><span class="eyebrow">INDICADORES DE BITÁCORA</span><h2>Estado de eventos</h2><div class="metric-large">'+data.incidents.length+'</div><small style="color:var(--muted)">Eventos capturados</small><div class="notice">'+data.incidents.filter(function(x){return x.status!=='cerrado';}).length+' eventos permanecen abiertos.</div><br><button class="btn secondary" data-view="investigations">Ir a investigaciones →</button></article><article class="panel"><span class="eyebrow">ANATOMÍA / FRECUENCIA</span><h2>Lesiones por región corporal</h2><div class="bars">'+anatomy+'</div></article></div></div><article class="panel"><div class="panel-head"><div><span class="eyebrow">HISTORIAL</span><h2>Registros capturados</h2></div><span class="pill">'+data.incidents.length+' registros</span></div><div class="table-wrap"><table><thead><tr><th>FECHA</th><th>EVENTO / ÁREA</th><th>REGIÓN CORPORAL</th><th>SEVERIDAD</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody>'+rows+'</tbody></table></div></article>';
 }
 function fishboneDiagram(chosen){
- var fish=chosen.ishikawa||{},cats=[['people','MANO DE OBRA',100,90],['machine','MAQUINARIA',250,90],['method','MÉTODO',400,90],['materials','MATERIALES',100,330],['environment','MEDIO AMBIENTE',250,330],['measurement','MEDICIÓN',400,330]];
- function lines(value){var words=String(value||'Sin causas documentadas').split(/\s+/),out=[],line='';words.forEach(function(w){if((line+' '+w).trim().length>27){out.push(line);line=w;}else line=(line+' '+w).trim();});if(line)out.push(line);return out.slice(0,3);}
- var svg='<svg class="ishikawa-svg" viewBox="0 0 1000 430" role="img" aria-label="Diagrama de Ishikawa o espina de pescado de seis categorías"><defs><linearGradient id="fishbone-line" x1="0" x2="1"><stop offset="0" stop-color="#2b879a"/><stop offset="1" stop-color="#65d5d8"/></linearGradient></defs><line x1="45" y1="210" x2="865" y2="210" stroke="url(#fishbone-line)" stroke-width="5"/><path d="M865 210 L830 185 L830 235 Z" fill="#65d5d8"/>';
- cats.forEach(function(c,i){var top=i<3,x=c[2],y=top?145:275,tx=x+12,ty=top?35:355;svg+='<line x1="'+x+'" y1="'+y+'" x2="'+(x+72)+'" y2="210" stroke="#65d5d8" stroke-width="3"/><circle cx="'+x+'" cy="'+y+'" r="5" fill="#f2c36c"/><text x="'+tx+'" y="'+ty+'" fill="#8de5e7" font-size="17" font-weight="700">'+c[1]+'</text>';var arr=lines(fish[c[0]]);arr.forEach(function(t,j){svg+='<text x="'+tx+'" y="'+(ty+(top?23:24)+j*17)+'" fill="#d7e7ef" font-size="13">'+esc(t)+'</text>';});});
- svg+='<rect x="870" y="160" width="115" height="100" rx="12" fill="#4a2630" stroke="#e47b79" stroke-width="2"/><text x="927" y="190" fill="#ffc4bd" font-size="13" text-anchor="middle" font-weight="700">EFECTO</text><text x="927" y="213" fill="#fff" font-size="12" text-anchor="middle">'+esc((chosen.eventTitle||'Evento').slice(0,15))+'</text><text x="927" y="233" fill="#e9b4b0" font-size="9" text-anchor="middle">Problema analizado</text></svg>';
- return '<div class="fishbone-visual">'+svg+'</div>';
+ var fish=chosen.ishikawa||{};
+ var cats=[
+  {key:'people',name:'MANO DE OBRA',short:'PERSONAS',x:24,y:22,top:true},
+  {key:'machine',name:'MAQUINARIA',short:'EQUIPO',x:374,y:22,top:true},
+  {key:'method',name:'MÉTODO',short:'PROCESO',x:724,y:22,top:true},
+  {key:'materials',name:'MATERIALES',short:'INSUMOS',x:24,y:500,top:false},
+  {key:'environment',name:'MEDIO AMBIENTE',short:'ENTORNO',x:374,y:500,top:false},
+  {key:'measurement',name:'MEDICIÓN',short:'CONTROL',x:724,y:500,top:false}
+ ];
+ var spineY=330,spineStart=90,spineEnd=930,svg='<svg class="ishikawa-svg" viewBox="0 0 1120 690" role="img" aria-label="Diagrama de Ishikawa de seis ramas, método de las seis M"><defs><linearGradient id="fishbone-spine" x1="0" x2="1"><stop offset="0" stop-color="#367f98"/><stop offset="1" stop-color="#75e0dc"/></linearGradient><filter id="fishbone-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+ svg+='<line x1="'+spineStart+'" y1="'+spineY+'" x2="'+spineEnd+'" y2="'+spineY+'" stroke="url(#fishbone-spine)" stroke-width="7" stroke-linecap="round" filter="url(#fishbone-glow)"/><path d="M930 330 L895 307 L895 353 Z" fill="#75e0dc"/>';
+ cats.forEach(function(c,i){
+  var center=c.x+150,anchor=175+i*145,edgeY=c.top?160:500,branchEndY=c.top?edgeY:edgeY;
+  var d=c.top?'M '+center+' '+(c.y+138)+' L '+anchor+' '+spineY:'M '+center+' '+c.y+' L '+anchor+' '+spineY;
+  svg+='<path d="'+d+'" fill="none" stroke="#5fcbd1" stroke-width="4" stroke-linecap="round"/>';
+  for(var j=1;j<=3;j++){
+   var t=j/4,bx=center+(anchor-center)*t,by=(c.top?c.y+138:c.y)+(spineY-(c.top?c.y+138:c.y))*t;
+   var dir=c.top?1:-1;
+   svg+='<path d="M '+bx+' '+by+' l '+(dir*13)+' '+(dir*13)+'" stroke="#3f91a5" stroke-width="2" stroke-linecap="round"/>';
+  }
+  var lines=String(fish[c.key]||'').split(/\n|;|•/).map(function(x){return x.trim();}).filter(Boolean),fallback='Sin causas documentadas';
+  var panelY=c.y,panelH=138;
+  svg+='<rect x="'+c.x+'" y="'+panelY+'" width="300" height="'+panelH+'" rx="13" fill="#102b3d" stroke="#37647a" stroke-width="1.5"/><rect x="'+c.x+'" y="'+panelY+'" width="5" height="'+panelH+'" rx="2" fill="#65d5d8"/>';
+  svg+='<text x="'+(c.x+18)+'" y="'+(panelY+27)+'" fill="#83e4e5" font-size="16" font-weight="800" letter-spacing=".7">'+c.name+'</text><text x="'+(c.x+280)+'" y="'+(panelY+26)+'" fill="#68899b" font-size="9" text-anchor="end">6M · '+(i+1)+'</text>';
+  var visible=lines.length?lines.slice(0,4):[fallback];
+  visible.forEach(function(line,k){
+   var words=String(line).split(/\s+/),wrapped=[],buf='';
+   words.forEach(function(w){if((buf+' '+w).trim().length>34){wrapped.push(buf);buf=w;}else buf=(buf+' '+w).trim();});
+   if(buf)wrapped.push(buf);
+   var yy=panelY+53+k*20;
+   svg+='<circle cx="'+(c.x+21)+'" cy="'+(yy-4)+'" r="3" fill="'+(lines.length?'#f0c36d':'#6b8493')+'"/><text x="'+(c.x+32)+'" y="'+yy+'" fill="'+(lines.length?'#d9e8ef':'#7892a2')+'" font-size="12">'+esc(wrapped[0]||'')+'</text>';
+   if(wrapped[1])svg+='<text x="'+(c.x+32)+'" y="'+(yy+13)+'" fill="#b9ccd7" font-size="10">'+esc(wrapped[1])+'</text>';
+  });
+ });
+ var effect=String(chosen.eventTitle||'Evento investigado');
+ if(effect.length>22)effect=effect.slice(0,20)+'…';
+ svg+='<rect x="950" y="258" width="155" height="144" rx="15" fill="#4a2630" stroke="#e47b79" stroke-width="2"/><text x="1027" y="286" fill="#ffc4bd" font-size="12" text-anchor="middle" font-weight="800" letter-spacing="1">EFECTO</text><path d="M970 298 H1085" stroke="#a85a61" stroke-width="1"/><text x="1027" y="326" fill="#fff" font-size="13" text-anchor="middle" font-weight="700">'+esc(effect)+'</text><text x="1027" y="350" fill="#e9b4b0" font-size="10" text-anchor="middle">Problema / evento</text><text x="1027" y="373" fill="#c78d91" font-size="9" text-anchor="middle">Analizar causas</text>';
+ svg+='<text x="560" y="677" fill="#7897a9" font-size="10" text-anchor="middle" letter-spacing="1.5">CAUSAS POTENCIALES → ANÁLISIS Y VALIDACIÓN CON EVIDENCIA → EFECTO</text></svg>';
+ return '<div class="fishbone-visual"><div class="fishbone-caption"><span><b>ISHIKAWA · 6M</b> Diagrama causa–efecto</span><small>Las ramas agrupan causas potenciales; valida cada una con evidencia antes de declararla causa raíz.</small></div>'+svg+'</div>';
 }
 function investigationsPage(){
  var eventOptions=data.incidents.map(function(x){return '<option value="'+esc(x.id)+'">'+esc(x.title)+' — '+esc(x.date)+'</option>';}).join('');
  var rows=data.investigations.length?data.investigations.map(function(x){return '<tr><td><b>'+esc(x.eventTitle||'Evento relacionado')+'</b><br><small>'+esc(x.owner||'Sin responsable')+'</small></td><td>'+esc(x.rootCause||'—')+'</td><td>'+esc(x.dueDate||'—')+'</td><td>'+badge(x.status==='cerrada'?'low':'high')+'</td><td><div class="actions"><button class="btn secondary small" data-action="select-investigation" data-id="'+esc(x.id)+'">Ver análisis</button><button class="btn secondary small" data-action="toggle-investigation" data-id="'+esc(x.id)+'">'+(x.status==='cerrada'?'Reabrir':'Cerrar')+'</button></div></td></tr>';}).join(''):'<tr><td colspan="5" class="empty">No hay investigaciones registradas.</td></tr>';
  var chosen=data.investigations.find(function(x){return x.id===selectedInvestigation;})||data.investigations[0]||null;if(chosen)selectedInvestigation=chosen.id;
  var whyFields=[1,2,3,4,5].map(function(n){var old=chosen&&Array.isArray(chosen.whys)?chosen.whys[n-1]:'';return '<label class="field why-step"><span>¿Por qué '+n+'?</span><textarea name="why'+n+'" placeholder="Respuesta / evidencia que explica la causa anterior"></textarea></label>';}).join('');
- var cats=[['people','Mano de obra'],['machine','Maquinaria'],['method','Método'],['materials','Materiales'],['environment','Medio ambiente'],['measurement','Medición']];
- var fishFields=cats.map(function(c){return '<label class="field"><span>'+c[1]+'</span><textarea name="'+c[0]+'" placeholder="Causas posibles, hechos o evidencias"></textarea></label>';}).join('');
+ var cats=[['people','1. Mano de obra','Capacitación, competencia, fatiga, comunicación, supervisión.'],['machine','2. Maquinaria','Guardas, mantenimiento, herramientas, diseño, fallas.'],['method','3. Método','Procedimientos, permisos, secuencia, instrucciones, estándares.'],['materials','4. Materiales','Materia prima, sustancias, almacenamiento, identificación.'],['environment','5. Medio ambiente','Iluminación, ruido, temperatura, orden, espacio, condiciones.'],['measurement','6. Medición','Inspecciones, indicadores, calibración, seguimiento, registros.']];
+ var fishFields=cats.map(function(c){return '<label class="field fishbone-input"><span>'+c[1]+'</span><small>'+c[2]+'</small><textarea name="'+c[0]+'" rows="3" placeholder="Anota hechos y causas potenciales; separa hipótesis de evidencia confirmada."></textarea></label>';}).join('');
  var detailed='';
  if(chosen){
   var whysHtml=Array.isArray(chosen.whys)?chosen.whys.map(function(w,i){return '<div class="why-result"><b>¿Por qué '+(i+1)+'?</b><span>'+esc(w||'Sin respuesta documentada')+'</span></div>';}).join(''):'<div class="notice">'+esc(chosen.whys||'No se capturó una cadena de 5 porqués en este expediente anterior.')+'</div>';
