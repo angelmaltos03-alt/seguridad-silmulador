@@ -1,291 +1,108 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
-function makeMaterial(color, roughness = 0.72, metalness = 0.08) {
-  return new THREE.MeshStandardMaterial({ color, roughness, metalness });
-}
+const ZONES = [
+  { id:'production', label:'Producción', position:[-3.3,.8,.1], level:'alto' },
+  { id:'maintenance', label:'Mantenimiento', position:[-4.6,.8,-2.4], level:'medio' },
+  { id:'warehouse', label:'Almacén', position:[3.6,1.15,-2], level:'medio' },
+  { id:'logistics', label:'Logística', position:[1.1,.15,2.6], level:'bajo' }
+];
+const COLORS = { bajo:0x42c991, medio:0x27c2d4, alto:0xf4b84e, critico:0xf16c63 };
+const material = (color, roughness=.7, metalness=.08) => new THREE.MeshStandardMaterial({color,roughness,metalness});
+function addBox(parent,size,position,mat){const mesh=new THREE.Mesh(new THREE.BoxGeometry(...size),mat);mesh.position.set(...position);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;}
+function addCylinder(parent,top,bottom,height,position,mat,segments=24){const mesh=new THREE.Mesh(new THREE.CylinderGeometry(top,bottom,height,segments),mat);mesh.position.set(...position);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;}
 
-function addBox(parent, size, position, material, bevel = false) {
-  const geometry = new THREE.BoxGeometry(...size);
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(...position);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  parent.add(mesh);
-  if (bevel) {
-    const edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(geometry),
-      new THREE.LineBasicMaterial({ color: 0x91a5b9, transparent: true, opacity: 0.32 })
-    );
-    mesh.add(edges);
-  }
-  return mesh;
-}
+export default function FactoryScene3D({selectedZone='production',onSelect=()=>{}}){
+  const canvasRef=useRef(null);
+  const [ready,setReady]=useState(true);
+  const selectedRef=useRef(selectedZone);
+  const selectRef=useRef(onSelect);
+  selectedRef.current=selectedZone;
+  selectRef.current=onSelect;
 
-function addCylinder(parent, radiusTop, radiusBottom, height, position, material, segments = 24) {
-  const mesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments),
-    material
-  );
-  mesh.position.set(...position);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  parent.add(mesh);
-  return mesh;
-}
-
-export default function FactoryScene3D() {
-  const canvasRef = useRef(null);
-  const [webglReady, setWebglReady] = useState(true);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return undefined;
-
-    let renderer;
-    let animationFrame = 0;
-    let resizeObserver;
-    let pointerDown = false;
-    let lastPointerX = 0;
-    let lastPointerY = 0;
-    let targetX = -0.12;
-    let targetY = 0.48;
-
-    try {
-      const scene = new THREE.Scene();
-      scene.fog = new THREE.Fog(0x0b1421, 15, 34);
-
-      const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 80);
-      camera.position.set(10.5, 8.6, 12.5);
-      camera.lookAt(0, 0.45, 0);
-
-      renderer = new THREE.WebGLRenderer({
-        canvas,
-        alpha: true,
-        antialias: true,
-        powerPreference: 'high-performance'
+  useEffect(()=>{
+    const canvas=canvasRef.current;
+    if(!canvas)return undefined;
+    let renderer,observer,frame=0;
+    let down=false,moved=false,lastX=0,lastY=0,targetX=-.12,targetY=.48;
+    const markers=[];
+    try{
+      const scene=new THREE.Scene();
+      scene.fog=new THREE.Fog(0x0b1421,15,34);
+      const camera=new THREE.PerspectiveCamera(36,1,.1,80);
+      camera.position.set(10.5,8.6,12.5);camera.lookAt(0,.45,0);
+      renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.8));
+      renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+      renderer.outputColorSpace=THREE.SRGBColorSpace;
+      renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;
+      scene.add(new THREE.HemisphereLight(0xa9c9e8,0x182638,2.15));
+      const key=new THREE.DirectionalLight(0xd7eaff,3.1);key.position.set(7,12,5);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key);
+      const glow=new THREE.PointLight(0x19c6dc,18,18);glow.position.set(-5,4,1);scene.add(glow);
+      const world=new THREE.Group();scene.add(world);
+      const floor=material(0x243346,.88),dark=material(0x172538,.76,.2),wall=material(0x526b82,.84),roof=material(0x30475d,.62,.22),cyan=material(0x21bfd0,.34,.35),yellow=material(0xf4b53f,.5,.15),white=material(0xb9c9d8,.62,.25);
+      addBox(world,[13.8,.28,9.6],[0,-.28,0],floor);
+      const grid=new THREE.GridHelper(13.5,27,0x4b6a83,0x344b61);grid.position.y=-.125;world.add(grid);
+      // Nave principal.
+      addBox(world,[4.7,2.7,3.25],[-3.3,1.2,-1.55],wall);
+      addBox(world,[4.95,.18,3.5],[-3.3,2.65,-1.55],roof);
+      addBox(world,[.14,2,3],[-.88,1,-1.55],dark);
+      addBox(world,[.12,1.75,2.35],[-5.68,.98,-1.55],dark);
+      for(let i=0;i<4;i++)addBox(world,[.08,2.35,.08],[-5.4+i*1.38,1.2,.12],cyan);
+      for(let i=0;i<3;i++){addBox(world,[.72,.55,.52],[-4.8+i*1.45,.42,-1.1],dark);addCylinder(world,.25,.25,.1,[-4.8+i*1.45,.73,-1.1],yellow);}
+      addBox(world,[1.25,.1,.12],[-3.25,2.02,.12],yellow);
+      addBox(world,[.13,3,.13],[-5.45,1.35,-3.3],white);addBox(world,[.13,3,.13],[-1.15,1.35,-3.3],white);addBox(world,[4.45,.13,.13],[-3.3,2.82,-3.3],yellow);
+      // Silos y plataformas.
+      addCylinder(world,.72,.78,2.35,[3.6,1.05,-2],white,32);addCylinder(world,0,.83,.68,[3.6,2.56,-2],roof,32);addCylinder(world,.18,.18,.55,[3.6,3.12,-2],dark);
+      addBox(world,[.15,2.7,.15],[4.42,1.15,-2],yellow);addCylinder(world,.74,.74,.08,[3.6,0,-2],cyan,32);addBox(world,[1.85,.08,.08],[3.6,2.15,-1.15],yellow);
+      // Banda transportadora y caja.
+      addBox(world,[4.4,.28,.76],[1.35,.72,1.1],dark);addBox(world,[4.25,.12,.55],[1.35,.91,1.1],white);
+      for(let i=0;i<9;i++)addCylinder(world,.12,.12,.62,[-.62+i*.49,.62,1.1],dark,16).rotation.z=Math.PI/2;
+      addBox(world,[.36,.36,.36],[.5,1.2,1.1],yellow);
+      // Brazo robótico articulado.
+      const robot=new THREE.Group();robot.position.set(2.4,.18,2);world.add(robot);
+      addCylinder(robot,.24,.3,.35,[0,.18,0],cyan);
+      const arm1=addBox(robot,[.22,1.05,.22],[.28,.72,0],yellow);arm1.rotation.z=-.52;
+      const arm2=addBox(robot,[.18,.82,.18],[.68,1.2,0],white);arm2.rotation.z=.4;
+      addBox(robot,[.48,.1,.22],[.95,1.53,0],dark);
+      // Trabajador con casco y chaleco.
+      addCylinder(world,.24,.3,.76,[-.35,.58,2.65],cyan);addCylinder(world,.14,.14,.2,[-.35,1.08,2.65],material(0xe2b78e));
+      addCylinder(world,.23,.23,.13,[-.35,1.22,2.65],yellow);
+      const helmet=new THREE.Mesh(new THREE.SphereGeometry(.23,24,12,0,Math.PI*2,0,Math.PI/2),yellow);helmet.position.set(-.35,1.24,2.65);helmet.castShadow=true;world.add(helmet);
+      addBox(world,[.55,.12,.08],[-.35,.66,2.35],yellow);
+      // Vialidades, franjas y zona de almacén.
+      addBox(world,[.11,.025,7.5],[-.2,-.12,.65],yellow);addBox(world,[.11,.025,7.5],[.2,-.12,.65],yellow);
+      for(let i=0;i<7;i++){const stripe=addBox(world,[.24,.03,.09],[3.6+(i%2)*.15,-.11,.3+i*.29],yellow);stripe.rotation.y=.18;}
+      addBox(world,[2.35,1.45,2.25],[5.1,.72,-3],wall);addBox(world,[2.48,.12,2.38],[5.1,1.5,-3],roof);
+      for(let i=0;i<3;i++){addBox(world,[.52,.55,.45],[4.45+i*.62,.38,-1.72],dark);addBox(world,[.52,.06,.45],[4.45+i*.62,.69,-1.72],yellow);}
+      // Marcadores de riesgo seleccionables por raycasting.
+      ZONES.forEach(zone=>{
+        const marker=new THREE.Group();marker.position.set(...zone.position);marker.userData.zoneId=zone.id;marker.userData.baseY=marker.position.y;
+        const ball=new THREE.Mesh(new THREE.SphereGeometry(.15,20,16),new THREE.MeshStandardMaterial({color:COLORS[zone.level],emissive:COLORS[zone.level],emissiveIntensity:.55,roughness:.3}));
+        ball.castShadow=true;marker.add(ball);
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(.32,.018,8,40),new THREE.MeshBasicMaterial({color:COLORS[zone.level],transparent:true,opacity:.76}));
+        ring.rotation.x=Math.PI/2;marker.add(ring);marker.userData.ball=ball;marker.userData.ring=ring;world.add(marker);markers.push(marker);
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.18;
-
-      scene.add(new THREE.HemisphereLight(0xa9c9e8, 0x182638, 2.15));
-      const keyLight = new THREE.DirectionalLight(0xd7eaff, 3.1);
-      keyLight.position.set(7, 12, 5);
-      keyLight.castShadow = true;
-      keyLight.shadow.mapSize.set(1024, 1024);
-      scene.add(keyLight);
-      const cyanLight = new THREE.PointLight(0x19c6dc, 18, 18);
-      cyanLight.position.set(-5, 4, 1);
-      scene.add(cyanLight);
-      const amberLight = new THREE.PointLight(0xffa42c, 10, 12);
-      amberLight.position.set(4, 3, -3);
-      scene.add(amberLight);
-
-      const world = new THREE.Group();
-      scene.add(world);
-
-      const floorMat = makeMaterial(0x243346, 0.88);
-      const darkMat = makeMaterial(0x172538, 0.76, 0.2);
-      const wallMat = makeMaterial(0x526b82, 0.84);
-      const roofMat = makeMaterial(0x30475d, 0.62, 0.22);
-      const cyanMat = makeMaterial(0x21bfd0, 0.34, 0.35);
-      const yellowMat = makeMaterial(0xf4b53f, 0.5, 0.15);
-      const whiteMat = makeMaterial(0xb9c9d8, 0.62, 0.25);
-      const redMat = makeMaterial(0xec5c4f, 0.38, 0.22);
-      const greenMat = makeMaterial(0x34c88a, 0.4, 0.16);
-
-      addBox(world, [13.8, 0.28, 9.6], [0, -0.28, 0], floorMat, true);
-      const grid = new THREE.GridHelper(13.5, 27, 0x4b6a83, 0x344b61);
-      grid.position.y = -0.125;
-      world.add(grid);
-
-      // Main production hall.
-      addBox(world, [4.7, 2.7, 3.25], [-3.3, 1.2, -1.55], wallMat, true);
-      addBox(world, [4.95, 0.18, 3.5], [-3.3, 2.65, -1.55], roofMat, true);
-      addBox(world, [0.14, 2.0, 3.0], [-0.88, 1.0, -1.55], darkMat);
-      addBox(world, [0.12, 1.75, 2.35], [-5.68, 0.98, -1.55], darkMat);
-      for (let i = 0; i < 4; i += 1) {
-        addBox(world, [0.08, 2.35, 0.08], [-5.4 + i * 1.38, 1.2, 0.12], cyanMat);
-      }
-      for (let i = 0; i < 3; i += 1) {
-        addBox(world, [0.72, 0.55, 0.52], [-4.8 + i * 1.45, 0.42, -1.1], darkMat, true);
-        addCylinder(world, 0.25, 0.25, 0.1, [-4.8 + i * 1.45, 0.73, -1.1], yellowMat);
-      }
-      addBox(world, [1.25, 0.1, 0.12], [-3.25, 2.02, 0.12], yellowMat);
-
-      // Overhead rails and structural columns.
-      addBox(world, [0.13, 3.0, 0.13], [-5.45, 1.35, -3.3], whiteMat);
-      addBox(world, [0.13, 3.0, 0.13], [-1.15, 1.35, -3.3], whiteMat);
-      addBox(world, [4.45, 0.13, 0.13], [-3.3, 2.82, -3.3], yellowMat);
-      addBox(world, [2.8, 0.12, 0.12], [-3.3, 2.2, -3.2], cyanMat);
-
-      // Storage silos.
-      const silo = addCylinder(world, 0.72, 0.78, 2.35, [3.6, 1.05, -2.0], whiteMat, 32);
-      addCylinder(world, 0.0, 0.83, 0.68, [3.6, 2.56, -2.0], roofMat, 32);
-      addCylinder(world, 0.18, 0.18, 0.55, [3.6, 3.12, -2.0], darkMat);
-      addBox(world, [0.15, 2.7, 0.15], [4.42, 1.15, -2.0], yellowMat);
-      addCylinder(world, 0.74, 0.74, 0.08, [3.6, 0.0, -2.0], cyanMat, 32);
-
-      // Conveyor and robotic handling zone.
-      addBox(world, [4.4, 0.28, 0.76], [1.35, 0.72, 1.1], darkMat, true);
-      addBox(world, [4.25, 0.12, 0.55], [1.35, 0.91, 1.1], whiteMat);
-      for (let i = 0; i < 9; i += 1) {
-        addCylinder(world, 0.12, 0.12, 0.62, [-0.62 + i * 0.49, 0.62, 1.1], darkMat, 16).rotation.z = Math.PI / 2;
-      }
-      addBox(world, [0.34, 1.48, 0.34], [2.4, 1.15, 2.0], yellowMat);
-      const robotArm = new THREE.Group();
-      robotArm.position.set(2.4, 1.9, 2.0);
-      robotArm.add(addCylinder(robotArm, 0.24, 0.3, 0.35, [0, -0.18, 0], cyanMat));
-      const upperArm = addBox(robotArm, [0.22, 1.05, 0.22], [0.28, 0.42, 0], yellowMat);
-      upperArm.rotation.z = -0.52;
-      const lowerArm = addBox(robotArm, [0.18, 0.82, 0.18], [0.68, 0.9, 0], whiteMat);
-      lowerArm.rotation.z = 0.4;
-      addBox(robotArm, [0.48, 0.1, 0.22], [0.95, 1.23, 0], darkMat);
-      world.add(robotArm);
-
-      // Safety worker: body, head and hard hat.
-      addCylinder(world, 0.24, 0.3, 0.76, [-0.35, 0.58, 2.65], cyanMat);
-      addCylinder(world, 0.14, 0.14, 0.2, [-0.35, 1.08, 2.65], makeMaterial(0xe2b78e));
-      addCylinder(world, 0.23, 0.23, 0.13, [-0.35, 1.22, 2.65], yellowMat);
-      const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.23, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), yellowMat);
-      helmet.position.set(-0.35, 1.24, 2.65);
-      helmet.castShadow = true;
-      world.add(helmet);
-      addBox(world, [0.55, 0.12, 0.08], [-0.35, 0.66, 2.35], yellowMat);
-
-      // Marked walkways and striped restricted zone.
-      addBox(world, [0.11, 0.025, 7.5], [-0.2, -0.12, 0.65], yellowMat);
-      addBox(world, [0.11, 0.025, 7.5], [0.2, -0.12, 0.65], yellowMat);
-      for (let i = 0; i < 7; i += 1) {
-        const stripe = addBox(world, [0.24, 0.03, 0.09], [3.6 + (i % 2) * 0.15, -0.11, 0.3 + i * 0.29], yellowMat);
-        stripe.rotation.y = 0.18;
-      }
-
-      // Interactive hazard location, with animated beacon and radar ring.
-      const hazard = new THREE.Group();
-      hazard.position.set(1.25, 0.02, 2.65);
-      world.add(hazard);
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(0.95, 0.035, 12, 64),
-        new THREE.MeshBasicMaterial({ color: 0xf36b57, transparent: true, opacity: 0.9 })
-      );
-      ring.rotation.x = Math.PI / 2;
-      hazard.add(ring);
-      const ringOuter = new THREE.Mesh(
-        new THREE.TorusGeometry(1.25, 0.012, 8, 64),
-        new THREE.MeshBasicMaterial({ color: 0xf3b64c, transparent: true, opacity: 0.42 })
-      );
-      ringOuter.rotation.x = Math.PI / 2;
-      ringOuter.position.y = 0.015;
-      hazard.add(ringOuter);
-      addCylinder(hazard, 0.19, 0.22, 0.22, [0, 0.15, 0], darkMat);
-      const beacon = new THREE.Mesh(
-        new THREE.SphereGeometry(0.2, 18, 12),
-        new THREE.MeshStandardMaterial({ color: 0xff654f, emissive: 0x8d180e, emissiveIntensity: 1.4 })
-      );
-      beacon.position.y = 0.46;
-      hazard.add(beacon);
-      const beaconLight = new THREE.PointLight(0xff604b, 7, 5);
-      beaconLight.position.set(0, 0.55, 0);
-      hazard.add(beaconLight);
-
-      // Small status markers on the plant floor.
-      const markerA = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), greenMat);
-      markerA.position.set(-4.95, 0.16, 1.8);
-      world.add(markerA);
-      const markerB = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), yellowMat);
-      markerB.position.set(4.75, 0.16, 1.15);
-      world.add(markerB);
-
-      const onPointerDown = (event) => {
-        pointerDown = true;
-        lastPointerX = event.clientX;
-        lastPointerY = event.clientY;
-        canvas.setPointerCapture?.(event.pointerId);
+      const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+      const onDown=e=>{down=true;moved=false;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);};
+      const onMove=e=>{if(!down)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;targetY+=dx*.006;targetX=Math.max(-.4,Math.min(.25,targetX+dy*.003));lastX=e.clientX;lastY=e.clientY;};
+      const onUp=e=>{
+        if(down&&!moved){const rect=canvas.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(markers.map(m=>m.userData.ball),false)[0];if(hit){const marker=markers.find(m=>m.userData.ball===hit.object);if(marker)selectRef.current(marker.userData.zoneId);}}
+        down=false;
       };
-      const onPointerMove = (event) => {
-        if (!pointerDown) return;
-        const deltaX = event.clientX - lastPointerX;
-        const deltaY = event.clientY - lastPointerY;
-        targetY += deltaX * 0.006;
-        targetX = Math.max(-0.4, Math.min(0.25, targetX + deltaY * 0.003));
-        lastPointerX = event.clientX;
-        lastPointerY = event.clientY;
+      canvas.addEventListener('pointerdown',onDown);canvas.addEventListener('pointermove',onMove);canvas.addEventListener('pointerup',onUp);canvas.addEventListener('pointercancel',onUp);
+      const resize=()=>{const rect=canvas.getBoundingClientRect();const w=Math.max(1,rect.width),h=Math.max(1,rect.height);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
+      observer=new ResizeObserver(resize);observer.observe(canvas);resize();
+      const clock=new THREE.Clock();
+      const render=()=>{
+        const elapsed=clock.getElapsedTime();world.rotation.y+=(targetY-world.rotation.y)*.035;world.rotation.x+=(targetX-world.rotation.x)*.035;
+        markers.forEach(marker=>{const active=marker.userData.zoneId===selectedRef.current;marker.position.y=marker.userData.baseY+Math.sin(elapsed*2.2+marker.position.x)*.055;marker.userData.ball.scale.setScalar(active?1.35:1+Math.sin(elapsed*2.4)*.08);marker.userData.ring.scale.setScalar(active?1.24:1);marker.userData.ring.material.opacity=active?.98:.56;});
+        renderer.render(scene,camera);frame=requestAnimationFrame(render);
       };
-      const onPointerUp = () => { pointerDown = false; };
+      render();setReady(true);
+      return ()=>{cancelAnimationFrame(frame);observer?.disconnect();canvas.removeEventListener('pointerdown',onDown);canvas.removeEventListener('pointermove',onMove);canvas.removeEventListener('pointerup',onUp);canvas.removeEventListener('pointercancel',onUp);scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});renderer.dispose();};
+    }catch(error){console.error('No fue posible iniciar el modelo 3D:',error);setReady(false);renderer?.dispose();return undefined;}
+  },[]);
 
-      canvas.addEventListener('pointerdown', onPointerDown);
-      canvas.addEventListener('pointermove', onPointerMove);
-      canvas.addEventListener('pointerup', onPointerUp);
-      canvas.addEventListener('pointercancel', onPointerUp);
-
-      const resize = () => {
-        const rect = canvas.getBoundingClientRect();
-        const width = Math.max(1, rect.width);
-        const height = Math.max(1, rect.height);
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-      };
-      resizeObserver = new ResizeObserver(resize);
-      resizeObserver.observe(canvas);
-      resize();
-
-      const clock = new THREE.Clock();
-      const render = () => {
-        const elapsed = clock.getElapsedTime();
-        world.rotation.y += (targetY - world.rotation.y) * 0.035;
-        world.rotation.x += (targetX - world.rotation.x) * 0.035;
-        beacon.scale.setScalar(1 + Math.sin(elapsed * 3.5) * 0.12);
-        beaconLight.intensity = 5.5 + (Math.sin(elapsed * 3.5) + 1) * 2.3;
-        ring.scale.setScalar(1 + (Math.sin(elapsed * 1.7) + 1) * 0.035);
-        silo.rotation.y = Math.sin(elapsed * 0.12) * 0.025;
-        renderer.render(scene, camera);
-        animationFrame = window.requestAnimationFrame(render);
-      };
-      render();
-      setWebglReady(true);
-
-      return () => {
-        window.cancelAnimationFrame(animationFrame);
-        resizeObserver?.disconnect();
-        canvas.removeEventListener('pointerdown', onPointerDown);
-        canvas.removeEventListener('pointermove', onPointerMove);
-        canvas.removeEventListener('pointerup', onPointerUp);
-        canvas.removeEventListener('pointercancel', onPointerUp);
-        scene.traverse((object) => {
-          if (object.geometry) object.geometry.dispose();
-          if (object.material) {
-            const materials = Array.isArray(object.material) ? object.material : [object.material];
-            materials.forEach((material) => material.dispose());
-          }
-        });
-        renderer.dispose();
-      };
-    } catch (error) {
-      console.error('No fue posible iniciar la escena 3D:', error);
-      setWebglReady(false);
-      renderer?.dispose();
-      return undefined;
-    }
-  }, []);
-
-  return (
-    <div className="factory-scene">
-      <canvas ref={canvasRef} aria-label="Modelo tridimensional interactivo de una planta industrial con zonas de seguridad" />
-      {!webglReady && (
-        <div className="factory-fallback">
-          <strong>VISTA 3D NO DISPONIBLE</strong>
-          <span>El resto del panel continúa funcionando sin WebGL.</span>
-        </div>
-      )}
-      <div className="scene-hud scene-hud-left"><span>SECTOR 04</span><strong>PRODUCCIÓN</strong></div>
-      <div className="scene-hud scene-hud-right"><span>ALERTA ACTIVA</span><strong>PUNTO DE RIESGO</strong></div>
-      <div className="scene-coordinates">COORD. 25°32' N · 103°27' O</div>
-    </div>
-  );
+  return <div className="factory-scene"><canvas ref={canvasRef} aria-label="Modelo 3D de una planta industrial; selecciona marcadores para consultar los riesgos." />{!ready&&<div className="factory-fallback"><strong>VISTA 3D NO DISPONIBLE</strong><span>El resto del centro de mando continúa funcionando.</span></div>}<div className="scene-hud scene-hud-left"><span>PLANTA / SECTOR</span><strong>MODELO DIGITAL</strong></div><div className="scene-hud scene-hud-right"><span>MAPA ACTIVO</span><strong>SELECCIONA UN MARCADOR</strong></div><div className="scene-coordinates">INTERACTIVE MODEL · WEBGL</div></div>;
 }
