@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 650" role="img" aria-labelledby="title desc">
+<title id="title">Diagrama de Ishikawa 6M</title><desc id="desc">Diagrama causa efecto con seis categorías: Personas, Maquinaria, Método, Materiales, Entorno y Medición.</desc>
+<defs>
+ <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#102b40"/><stop offset="1" stop-color="#071725"/></linearGradient>
+ <linearGradient id="line" x2="1"><stop stop-color="#36b8c9"/><stop offset="1" stop-color="#80eee2"/></linearGradient>
+ <linearGradient id="card" x2="1" y2="1"><stop stop-color="#17445b"/><stop offset="1" stop-color="#102638"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <style>
+ .heading{font:700 27px Inter,Arial,sans-serif;fill:#e9f6fa}.sub{font:14px Inter,Arial,sans-serif;fill:#a6c4d1}
+ .category{font:800 21px Inter,Arial,sans-serif;fill:#83e9e6;letter-spacing:1px}
+ .detail{font:15px Inter,Arial,sans-serif;fill:#d5e7ed}.branch{stroke:#65d9dc;stroke-width:7;stroke-linecap:round;fill:none}
+ .twig{stroke:#4c9caf;stroke-width:3;stroke-linecap:round}.node{fill:#83eee4;stroke:#16475b;stroke-width:4}
+ .effect{font:800 21px Inter,Arial,sans-serif;fill:#ffe0a0}.small{font:12px Inter,Arial,sans-serif;fill:#9ab9c8;letter-spacing:2px}
+ </style>
+</defs>
+<rect width="1600" height="650" rx="24" fill="url(#bg)"/>
+<text x="70" y="58" class="small">ANÁLISIS DE CAUSA RAÍZ · MODELO 6M</text>
+<text x="70" y="96" class="heading">Diagrama de Ishikawa</text>
+<text x="70" y="123" class="sub">Identifica, clasifica y valida las posibles causas del evento investigado</text>
+<!-- backbone -->
+<path d="M85 325 H1335" class="branch" stroke="url(#line)" filter="url(#glow)"/>
+<path d="M1335 325 l-32 -22 m32 22 l-32 22" class="branch"/>
+<!-- upper branches -->
+<path d="M330 325 L245 180 M760 325 L675 180 M1190 325 L1105 180" class="branch"/>
+<path d="M285 248 l-24 14 M305 282 l-24 14 M715 248 l-24 14 M735 282 l-24 14 M1145 248 l-24 14 M1165 282 l-24 14" class="twig"/>
+<!-- lower branches -->
+<path d="M500 325 L415 470 M930 325 L845 470 M1360 325 L1275 470" class="branch"/>
+<path d="M455 402 l-24 -14 M475 368 l-24 -14 M885 402 l-24 -14 M905 368 l-24 -14 M1315 402 l-24 -14 M1335 368 l-24 -14" class="twig"/>
+<circle cx="330" cy="325" r="12" class="node"/><circle cx="760" cy="325" r="12" class="node"/><circle cx="1190" cy="325" r="12" class="node"/>
+<circle cx="500" cy="325" r="12" class="node"/><circle cx="930" cy="325" r="12" class="node"/><circle cx="1360" cy="325" r="12" class="node"/>
+<!-- cards -->
+<g><rect x="70" y="145" width="360" height="100" rx="16" fill="url(#card)" stroke="#36758b" stroke-width="2"/><text x="95" y="183" class="category">01 · PERSONAS</text><text x="95" y="211" class="detail">Competencia · capacitación · fatiga</text></g>
+<g><rect x="500" y="145" width="360" height="100" rx="16" fill="url(#card)" stroke="#36758b" stroke-width="2"/><text x="525" y="183" class="category">02 · MAQUINARIA</text><text x="525" y="211" class="detail">Equipos · herramientas · mantenimiento</text></g>
+<g><rect x="930" y="145" width="360" height="100" rx="16" fill="url(#card)" stroke="#36758b" stroke-width="2"/><text x="955" y="183" class="category">03 · MÉTODO</text><text x="955" y="211" class="detail">Procedimientos · instrucciones · permisos</text></g>
+<g><rect x="245" y="455" width="360" height="100" rx="16" fill="url(#card)" stroke="#36758b" stroke-width="2"/><text x="270" y="493" class="category">04 · MATERIALES</text><text x="270" y="521" class="detail">Insumos · sustancias · especificaciones</text></g>
+<g><rect x="675" y="455" width="360" height="100" rx="16" fill="url(#card)" stroke="#36758b" stroke-width="2"/><text x="700" y="493" class="category">05 · ENTORNO</text><text x="700" y="521" class="detail">Orden · iluminación · ruido · espacio</text></g>
+<g><rect x="1105" y="455" width="360" height="100" rx="16" fill="url(#card)" stroke="#36758b" stroke-width="2"/><text x="1130" y="493" class="category">06 · MEDICIÓN</text><text x="1130" y="521" class="detail">Indicadores · inspecciones · calibración</text></g>
+<!-- effect -->
+<path d="M1335 275 Q1405 255 1475 285 L1530 325 L1475 365 Q1405 395 1335 375 Z" fill="#3c3030" stroke="#e6a85c" stroke-width="3"/>
+<text x="1430" y="318" text-anchor="middle" class="effect">EFECTO</text><text x="1430" y="344" text-anchor="middle" class="sub">Problema</text>
+<text x="800" y="615" text-anchor="middle" class="small">LAS CAUSAS SE DOCUMENTAN Y VALIDAN EN EL FORMULARIO DEL EXPEDIENTE</text>
+</svg>
