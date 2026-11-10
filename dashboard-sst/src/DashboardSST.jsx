@@ -997,3 +997,461 @@ const DashboardSST = () => {
                   <label className="block text-sm font-semibold mb-1">Accidentes Investigados:</label>
                   <input 
                     type="number"
+
+                    value={investigacionAccidentes.accidentesInvestigados}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setInvestigacionAccidentes({...investigacionAccidentes, accidentesInvestigados: val});
+                    }}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Investigaciones Cerradas:</label>
+                  <input 
+                    type="number"
+                    value={investigacionAccidentes.investigacionesCerradas}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      const investigados = investigacionAccidentes.accidentesInvestigados || 1;
+                      const porcentaje = Math.round((val / investigados) * 100);
+                      setInvestigacionAccidentes({...investigacionAccidentes, investigacionesCerradas: val, porcentajeCerradas: porcentaje});
+                    }}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">% Cerradas:</label>
+                  <input 
+                    type="number"
+                    value={investigacionAccidentes.porcentajeCerradas}
+                    readOnly
+                    className="w-full p-2 border rounded bg-gray-100"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">* Se calcula automáticamente</p>
+                </div>
+              </div>
+            )}
+
+            {modalType === 'ocurrencias' && (
+              <div className="space-y-2">
+                <h3 className="font-bold mb-2">Ocurrencias por Área/Gerencia</h3>
+                <div className="grid grid-cols-2 gap-2 mb-2 font-semibold text-sm bg-gray-100 p-2 rounded">
+                  <div>Área/Sector</div>
+                  <div className="text-center">Cantidad de Ocurrencias</div>
+                </div>
+                {ocurrencias.map((item, idx) => (
+                  <div key={idx} className="grid grid-cols-2 gap-2 items-center">
+                    <input 
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => {
+                        const newData = [...ocurrencias];
+                        newData[idx].name = e.target.value;
+                        setOcurrencias(newData);
+                      }}
+                      className="p-2 border rounded"
+                      placeholder="Nombre del área"
+                    />
+                    <input 
+                      type="number"
+                      value={item.value}
+                      onChange={(e) => {
+                        const newData = [...ocurrencias];
+                        newData[idx].value = parseInt(e.target.value) || 0;
+                        setOcurrencias(newData);
+                      }}
+                      className="p-2 border rounded text-center"
+                    />
+                  </div>
+                ))}
+                <button 
+                  onClick={() => setOcurrencias([...ocurrencias, { name: 'Nueva área', value: 0 }])}
+                  className="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm"
+                >
+                  + Agregar Área
+                </button>
+              </div>
+            )}
+
+            {modalType === 'turnos' && (
+              <div className="space-y-2">
+                <h3 className="font-bold mb-2">Accidentes por Turno</h3>
+                <p className="text-sm text-gray-600 mb-3">Puede ser Turno A, B, C o cualquier otra denominación</p>
+                <div className="grid grid-cols-2 gap-2 mb-2 font-semibold text-sm bg-gray-100 p-2 rounded">
+                  <div>Turno</div>
+                  <div className="text-center">Número de Accidentes</div>
+                </div>
+                {accidentesTurno.map((item, idx) => (
+                  <div key={idx} className="grid grid-cols-2 gap-2 items-center">
+                    <input 
+                      type="text"
+                      value={item.turno}
+                      onChange={(e) => {
+                        const newData = [...accidentesTurno];
+                        newData[idx].turno = e.target.value;
+                        setAccidentesTurno(newData);
+                      }}
+                      className="p-2 border rounded"
+                      placeholder="Ej: Turno A, Turno B, 1°, 2°..."
+                    />
+                    <input 
+                      type="number"
+                      value={item.accidentes}
+                      onChange={(e) => {
+                        const newData = [...accidentesTurno];
+                        newData[idx].accidentes = parseInt(e.target.value) || 0;
+                        setAccidentesTurno(newData);
+                      }}
+                      className="p-2 border rounded text-center"
+                    />
+                  </div>
+                ))}
+                <button 
+                  onClick={() => setAccidentesTurno([...accidentesTurno, { turno: 'Nuevo Turno', accidentes: 0 }])}
+                  className="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm"
+                >
+                  + Agregar Turno
+                </button>
+                {accidentesTurno.length > 1 && (
+                  <button 
+                    onClick={() => {
+                      if (accidentesTurno.length > 1) {
+                        setAccidentesTurno(accidentesTurno.slice(0, -1));
+                      }
+                    }}
+                    className="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded text-sm"
+                  >
+                    - Eliminar Último
+                  </button>
+                )}
+              </div>
+            )}
+
+            {modalType === 'sectores' && (
+              <div className="space-y-2">
+                <h3 className="font-bold mb-2">Lesiones/Accidentes por Sector (Comparativo)</h3>
+                <div className="grid grid-cols-3 gap-2 mb-2 font-semibold text-sm bg-gray-100 p-2 rounded">
+                  <div>Sector</div>
+                  <div className="text-center">{periodo1}</div>
+                  <div className="text-center">{periodo2}</div>
+                </div>
+                {accidentesSector.map((item, idx) => (
+                  <div key={idx} className="grid grid-cols-3 gap-2 items-center">
+                    <input 
+                      type="text"
+                      value={item.sector}
+                      onChange={(e) => {
+                        const newData = [...accidentesSector];
+                        newData[idx].sector = e.target.value;
+                        setAccidentesSector(newData);
+                      }}
+                      className="p-2 border rounded"
+                      placeholder="Nombre del sector"
+                    />
+                    <input 
+                      type="number"
+                      value={item.año1}
+                      onChange={(e) => {
+                        const newData = [...accidentesSector];
+                        newData[idx].año1 = parseInt(e.target.value) || 0;
+                        setAccidentesSector(newData);
+                      }}
+                      className="p-2 border rounded text-center"
+                    />
+                    <input 
+                      type="number"
+                      value={item.año2}
+                      onChange={(e) => {
+                        const newData = [...accidentesSector];
+                        newData[idx].año2 = parseInt(e.target.value) || 0;
+                        setAccidentesSector(newData);
+                      }}
+                      className="p-2 border rounded text-center"
+                    />
+                  </div>
+                ))}
+                <button 
+                  onClick={() => setAccidentesSector([...accidentesSector, { sector: 'Nuevo Sector', año1: 0, año2: 0 }])}
+                  className="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm"
+                >
+                  + Agregar Sector
+                </button>
+                {accidentesSector.length > 1 && (
+                  <button 
+                    onClick={() => {
+                      if (accidentesSector.length > 1) {
+                        setAccidentesSector(accidentesSector.slice(0, -1));
+                      }
+                    }}
+                    className="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded text-sm"
+                  >
+                    - Eliminar Último
+                  </button>
+                )}
+              </div>
+            )}
+
+            {modalType === 'cuerpo' && (
+              <div className="space-y-2">
+                <h3 className="font-bold mb-2">Accidentes por Parte del Cuerpo</h3>
+                <div className="grid grid-cols-3 gap-2 mb-2 font-semibold text-sm bg-gray-100 p-2 rounded">
+                  <div>Parte del Cuerpo</div>
+                  <div className="text-center">Cantidad</div>
+                  <div className="text-center">Porcentaje %</div>
+                </div>
+                {Object.keys(accidentesCuerpo).map((parte) => (
+                  <div key={parte} className="grid grid-cols-3 gap-2 items-center">
+                    <span className="text-sm font-medium capitalize">{parte.replace('_', '/')}:</span>
+                    <input 
+                      type="number"
+                      value={accidentesCuerpo[parte].num}
+                      onChange={(e) => {
+                        setAccidentesCuerpo({
+                          ...accidentesCuerpo,
+                          [parte]: { 
+                            ...accidentesCuerpo[parte], 
+                            num: parseInt(e.target.value) || 0 
+                          }
+                        });
+                      }}
+                      className="p-2 border rounded text-center"
+                    />
+                    <input 
+                      type="number"
+                      value={accidentesCuerpo[parte].porc}
+                      onChange={(e) => {
+                        setAccidentesCuerpo({
+                          ...accidentesCuerpo,
+                          [parte]: { 
+                            ...accidentesCuerpo[parte], 
+                            porc: parseInt(e.target.value) || 0 
+                          }
+                        });
+                      }}
+                      className="p-2 border rounded text-center"
+                      min="0"
+                      max="100"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {modalType === 'regionCuerpo' && (
+              <div className="space-y-2">
+                <h3 className="font-bold mb-2">Por Región del Cuerpo (Comparativo)</h3>
+                <div className="grid grid-cols-3 gap-2 mb-2 font-semibold text-sm bg-gray-100 p-2 rounded">
+                  <div>Región</div>
+                  <div className="text-center">{periodo2}</div>
+                  <div className="text-center">{periodo1}</div>
+                </div>
+                {regionCuerpo.map((item, idx) => (
+                  <div key={idx} className="grid grid-cols-3 gap-2 items-center">
+                    <input 
+                      type="text"
+                      value={item.region}
+                      onChange={(e) => {
+                        const newData = [...regionCuerpo];
+                        newData[idx].region = e.target.value;
+                        setRegionCuerpo(newData);
+                      }}
+                      className="p-2 border rounded"
+                      placeholder="Región del cuerpo"
+                    />
+                    <input 
+                      type="number"
+                      value={item.año2}
+                      onChange={(e) => {
+                        const newData = [...regionCuerpo];
+                        newData[idx].año2 = parseInt(e.target.value) || 0;
+                        setRegionCuerpo(newData);
+                      }}
+                      className="p-2 border rounded text-center"
+                    />
+                    <input 
+                      type="number"
+                      value={item.año1}
+                      onChange={(e) => {
+                        const newData = [...regionCuerpo];
+                        newData[idx].año1 = parseInt(e.target.value) || 0;
+                        setRegionCuerpo(newData);
+                      }}
+                      className="p-2 border rounded text-center"
+                    />
+                  </div>
+                ))}
+                <button 
+                  onClick={() => setRegionCuerpo([...regionCuerpo, { region: 'Nueva región', año2: 0, año1: 0 }])}
+                  className="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm"
+                >
+                  + Agregar Región
+                </button>
+                {regionCuerpo.length > 1 && (
+                  <button 
+                    onClick={() => {
+                      if (regionCuerpo.length > 1) {
+                        setRegionCuerpo(regionCuerpo.slice(0, -1));
+                      }
+                    }}
+                    className="mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded text-sm"
+                  >
+                    - Eliminar Última
+                  </button>
+                )}
+              </div>
+            )}
+
+            {modalType === 'programaAnual' && (
+              <div className="space-y-3">
+                <h3 className="font-bold mb-2">Programa Anual de Seguridad (NOM-030)</h3>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Actividades Programadas:</label>
+                  <input 
+                    type="number"
+                    value={programaAnual.actividadesProgramadas}
+                    onChange={(e) => {
+                      setProgramaAnual({...programaAnual, actividadesProgramadas: parseInt(e.target.value) || 0});
+                    }}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Actividades Realizadas:</label>
+                  <input 
+                    type="number"
+                    value={programaAnual.actividadesRealizadas}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      const programadas = programaAnual.actividadesProgramadas || 1;
+                      const porcentaje = Math.round((val / programadas) * 100);
+                      setProgramaAnual({...programaAnual, actividadesRealizadas: val, porcentajeCumplimiento: porcentaje});
+                    }}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">% Cumplimiento:</label>
+                  <input 
+                    type="number"
+                    value={programaAnual.porcentajeCumplimiento}
+                    readOnly
+                    className="w-full p-2 border rounded bg-gray-100"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">* Se calcula automáticamente</p>
+                </div>
+              </div>
+            )}
+
+            {modalType === 'cruzSeguridad' && (
+              <div className="space-y-3">
+                <h3 className="font-bold mb-2">Cruz de Seguridad - Días sin Accidentes</h3>
+                
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="border rounded p-2">
+                    <label className="block text-xs font-semibold mb-1">Días Consecutivos:</label>
+                    <input 
+                      type="number"
+                      value={diasSinAccidentes}
+                      onChange={(e) => setDiasSinAccidentes(parseInt(e.target.value) || 0)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div className="border rounded p-2">
+                    <label className="block text-xs font-semibold mb-1">Récord Histórico:</label>
+                    <input 
+                      type="number"
+                      value={recordDiasSinAccidentes}
+                      onChange={(e) => setRecordDiasSinAccidentes(parseInt(e.target.value) || 0)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div className="border rounded p-2">
+                    <label className="block text-xs font-semibold mb-1">Total del Año:</label>
+                    <input 
+                      type="number"
+                      value={totalDiasSinAccidentes}
+                      onChange={(e) => setTotalDiasSinAccidentes(parseInt(e.target.value) || 0)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                </div>
+
+                <div className="border rounded p-3 bg-gray-50">
+                  <p className="text-sm font-semibold mb-2">Calendario del Mes (haz clic para cambiar):</p>
+                  <div className="grid grid-cols-7 gap-2 mb-2">
+                    {cruzSeguridad.map((dia, index) => (
+                      <div 
+                        key={index}
+                        onClick={() => {
+                          const estados = ['verde', 'rojo', 'gris'];
+                          const currentIndex = estados.indexOf(dia.estado);
+                          const nextEstado = estados[(currentIndex + 1) % estados.length];
+                          cambiarEstadoDia(index, nextEstado);
+                        }}
+                        className={`
+                          aspect-square rounded cursor-pointer flex items-center justify-center font-bold text-xs
+                          ${dia.estado === 'verde' ? 'bg-green-500 text-white' : ''}
+                          ${dia.estado === 'rojo' ? 'bg-red-500 text-white' : ''}
+                          ${dia.estado === 'gris' ? 'bg-gray-300 text-gray-600' : ''}
+                        `}
+                      >
+                        {dia.dia}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3 text-xs justify-center">
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 bg-green-500 rounded"></span> Sin accidente
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 bg-red-500 rounded"></span> Con accidente
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 bg-gray-300 rounded"></span> No aplica
+                    </span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => {
+                    const confirmar = window.confirm('¿Resetear todos los días a verde?');
+                    if (confirmar) {
+                      const nuevosCruz = cruzSeguridad.map(d => ({...d, estado: 'verde'}));
+                      setCruzSeguridad(nuevosCruz);
+                      setDiasSinAccidentes(31);
+                      setTotalDiasSinAccidentes(31);
+                    }
+                  }}
+                  className="w-full bg-green-600 text-white px-3 py-2 rounded text-sm"
+                >
+                  ✅ Resetear Mes Completo (Verde)
+                </button>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button 
+                onClick={() => setShowModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Cerrar
+              </button>
+              <button 
+                onClick={() => {
+                  setShowModal(false);
+                  alert('Datos actualizados');
+                }}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DashboardSST;
