@@ -43,3 +43,8 @@ El sitio principal del repositorio conserva la simulación industrial que ya exi
 - Los cambios se mantienen en el estado de la sesión del navegador; esta versión no tiene base de datos ni sincronización entre usuarios.
 - El botón de descarga genera un archivo CSV de resumen.
 - No cargues información personal o registros reales de trabajadores en un sitio público. Antes de utilizarlo operativamente, valida los indicadores, las fórmulas y los criterios normativos con el responsable de SST.
+
+
+## Publicación
+
+La aplicación pública se sirve desde `index.html` autónomo: no depende de rutas de desarrollo, React en el navegador ni archivos externos para iniciar. El flujo de GitHub Actions valida el JavaScript de arranque antes de publicar.
