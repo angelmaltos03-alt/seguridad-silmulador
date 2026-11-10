@@ -58,6 +58,7 @@ jobs:
           mkdir -p site/dashboard-sst
           cp index.html site/index.html
           cp -R dashboard-sst/dist/. site/dashboard-sst/
+          cp dashboard-sst/ishikawa-6m.svg site/dashboard-sst/ishikawa-6m.svg
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
