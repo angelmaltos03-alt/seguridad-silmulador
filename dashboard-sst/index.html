@@ -312,7 +312,7 @@ function mapPage(){
 }
 function daysFrom(date){if(!date)return '—';var d=new Date(date+'T00:00:00');if(isNaN(d.getTime()))return '—';var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());d=new Date(d.getFullYear(),d.getMonth(),d.getDate());return Math.max(0,Math.floor((n-d)/86400000));}
 function safetyMetrics(){
- var manualByDate=data.safetyDays||{},incidents=data.incidents.filter(function(x){return x.kind==='accidente'&&x.date;});
+ var manualByDate=data.safetyDays||{},incidents=data.incidents.filter(function(x){return x.kind==='accidente'&&x.date&&!manualByDate[x.date];});
  var accidents=incidents.map(function(x){var m=manualByDate[x.date];return Object.assign({},x,m&&m.status==='accidente'?{incapacitating:m.incapacitating===true,lostDays:Number(m.lostDays)||0}:{});});
  Object.keys(manualByDate).forEach(function(k){var m=manualByDate[k];if(m&&m.status==='accidente'&&!incidents.some(function(x){return x.date===k;})){accidents.push({date:k,incapacitating:m.incapacitating===true,lostDays:Number(m.lostDays)||0,source:'safety-cross'});}});
  accidents.sort(function(a,b){return a.date.localeCompare(b.date);});
