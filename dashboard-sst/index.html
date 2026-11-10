@@ -356,6 +356,17 @@ tr:hover td{background:#142b3b66}
  .nav button.active{box-shadow:inset 3px 0 0 #5bd2dc}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style><style id="ishikawa-layout-fix">
+.fishbone-wrap{padding:18px;background:linear-gradient(145deg,#0a1a28,#0d2232);border:1px solid #29485d;border-radius:14px;overflow:hidden}
+.fishbone-visual{padding:18px;border:1px solid #2b5065;border-radius:13px;background:radial-gradient(ellipse at 50% 48%,#15384a 0,#0a1b29 76%)}
+.fishbone-caption{margin-bottom:16px;align-items:center}
+.fishbone-caption span{font-size:13px;gap:5px}
+.fishbone-caption b{font-size:10px;letter-spacing:.14em}
+.fishbone-caption small{max-width:490px;font-size:10px;line-height:1.6}
+.ishikawa-stage{width:100%;overflow-x:auto;overflow-y:hidden;padding:4px 2px 12px;scrollbar-width:thin;scrollbar-color:#416b80 #0a1b29}
+.ishikawa-svg{display:block;width:100%;height:auto;min-width:900px;max-width:1200px;margin:0 auto}
+.ishikawa-svg defs linearGradient#fishbone-card{ }
+@media(max-width:700px){.fishbone-wrap{padding:10px}.fishbone-visual{padding:12px}.fishbone-caption{display:grid;gap:8px}.ishikawa-svg{min-width:900px}}
 </style></head>
 <body>
 <div id="app"><div style="padding:40px;color:#d9f2f4;font:14px system-ui">Iniciando SAFETYOS…</div></div>
@@ -757,27 +768,34 @@ function incidentsPage(){
 function fishboneDiagram(chosen){
  var fish=chosen.ishikawa||{};
  var cats=[
-  {key:'people',name:'PERSONAS',x:45,y:30,top:true},
-  {key:'machine',name:'MAQUINARIA',x:365,y:30,top:true},
-  {key:'method',name:'MÉTODO',x:685,y:30,top:true},
-  {key:'materials',name:'MATERIALES',x:45,y:490,top:false},
-  {key:'environment',name:'ENTORNO',x:365,y:490,top:false},
-  {key:'measurement',name:'MEDICIÓN',x:685,y:490,top:false}
+  {key:'people',name:'01 · PERSONAS',x:35,y:24,cx:195,anchor:260,top:true},
+  {key:'machine',name:'02 · MAQUINARIA',x:415,y:24,cx:575,anchor:575,top:true},
+  {key:'method',name:'03 · MÉTODO',x:795,y:24,cx:955,anchor:890,top:true},
+  {key:'materials',name:'04 · MATERIALES',x:35,y:535,cx:195,anchor:350,top:false},
+  {key:'environment',name:'05 · ENTORNO',x:415,y:535,cx:575,anchor:650,top:false},
+  {key:'measurement',name:'06 · MEDICIÓN',x:795,y:535,cx:955,anchor:950,top:false}
  ];
- var svg='<svg class="ishikawa-svg" viewBox="0 0 1120 690" role="img" aria-label="Diagrama de Ishikawa con cabeza, columna vertebral y seis espinas principales"><defs><linearGradient id="fishbone-spine" x1="0" x2="1"><stop offset="0" stop-color="#35a9bd"/><stop offset="1" stop-color="#83e6dd"/></linearGradient><filter id="fishbone-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
- svg+='<path d="M70 345 L100 320 L100 370 Z" fill="#4e9eaf" stroke="#8be3df" stroke-width="2"/><path d="M100 345 H930" stroke="url(#fishbone-spine)" stroke-width="8" stroke-linecap="round" filter="url(#fishbone-glow)"/>';
- cats.forEach(function(c,i){
-  var anchor=150+i*145,base=c.top?178:490,tip=c.top?base:510;
-  svg+='<path d="M'+anchor+' 345 L'+(c.x+145)+' '+(c.top?155:535)+'" stroke="#72d7d7" stroke-width="5" stroke-linecap="round"/>';
-  for(var j=1;j<=3;j++){var t=j/4,bx=anchor+((c.x+145)-anchor)*t,by=345+((c.top?155:535)-345)*t,sgn=c.top?1:-1;svg+='<path d="M'+bx+' '+by+' l '+(sgn*17)+' '+(sgn*17)+'" stroke="#3e8fa5" stroke-width="2.5" stroke-linecap="round"/>';}
-  var lines=String(fish[c.key]||'').split(/\n|;|•/).map(function(x){return x.trim();}).filter(Boolean).slice(0,3);
-  svg+='<rect x="'+c.x+'" y="'+c.y+'" width="290" height="132" rx="12" fill="#102b3d" stroke="#37647a" stroke-width="1.5"/><text x="'+(c.x+16)+'" y="'+(c.y+25)+'" fill="#83e4e5" font-size="14" font-weight="800">'+c.name+'</text>';
-  if(!lines.length)lines=['Causa por investigar'];
-  lines.forEach(function(line,k){var words=line.split(/\s+/),a='',b='';words.forEach(function(w){if((a+' '+w).trim().length<31)a=(a+' '+w).trim();else b=(b+' '+w).trim();});var yy=c.y+52+k*24;svg+='<circle cx="'+(c.x+19)+'" cy="'+(yy-4)+'" r="3" fill="#f0c36d"/><text x="'+(c.x+30)+'" y="'+yy+'" fill="#d9e8ef" font-size="11">'+esc(a)+'</text>';if(b)svg+='<text x="'+(c.x+30)+'" y="'+(yy+12)+'" fill="#a9c4d2" font-size="9">'+esc(b)+'</text>';});
+ var svg='<svg class="ishikawa-svg" viewBox="0 0 1200 720" role="img" aria-label="Diagrama de Ishikawa 6M ordenado en tres ramas superiores y tres inferiores, conectadas a un eje central y al efecto investigado"><defs><linearGradient id="fishbone-spine" x1="0" x2="1"><stop offset="0" stop-color="#42b7c8"/><stop offset="1" stop-color="#8be6df"/></linearGradient><filter id="fishbone-glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+ svg+='<path d="M65 360 H1010" stroke="url(#fishbone-spine)" stroke-width="8" stroke-linecap="round" filter="url(#fishbone-glow)"/><path d="M1010 360 L1040 360" stroke="#8be6df" stroke-width="8" stroke-linecap="round"/><path d="M1040 360 L1019 344 M1040 360 L1019 376" stroke="#8be6df" stroke-width="6" stroke-linecap="round"/>';
+ cats.forEach(function(c){
+  var endY=c.top?190:535,dx=c.cx-c.anchor,dy=endY-360;
+  svg+='<path d="M'+c.anchor+' 360 L'+c.cx+' '+endY+'" stroke="#72d7d7" stroke-width="5" stroke-linecap="round"/>';
+  for(var j=1;j<=3;j++){var t=j/4,bx=c.anchor+dx*t,by=360+dy*t,sgn=c.top?1:-1;svg+='<path d="M'+bx+' '+by+' l '+(sgn*13)+' '+(sgn*13)+'" stroke="#3f8fa5" stroke-width="2.5" stroke-linecap="round"/>';}
+  var lines=String(fish[c.key]||'').split(/\n|;|•/).map(function(x){return x.trim();}).filter(Boolean).slice(0,4);
+  svg+='<rect x="'+c.x+'" y="'+c.y+'" width="320" height="158" rx="14" fill="url(#fishbone-card)" stroke="#47758b" stroke-width="1.5"/><rect x="'+c.x+'" y="'+c.y+'" width="320" height="4" rx="2" fill="#56cbd4"/><text x="'+(c.x+18)+'" y="'+(c.y+30)+'" fill="#8be5e5" font-size="14" font-weight="800" letter-spacing=".8">'+c.name+'</text><path d="M'+(c.x+18)+' '+(c.y+42)+' H'+(c.x+302)+'" stroke="#31556a" stroke-width="1"/>';
+  if(!lines.length)lines=['Sin causas registradas · pendiente de análisis'];
+  lines.forEach(function(line,k){
+   var words=line.split(/\s+/),parts=[],current='';
+   words.forEach(function(w){if((current+' '+w).trim().length>43&&current){parts.push(current);current=w;}else current=(current+' '+w).trim();});
+   if(current)parts.push(current);
+   var yy=c.y+67+k*22;
+   svg+='<circle cx="'+(c.x+22)+'" cy="'+(yy-4)+'" r="3.5" fill="#efc36e"/><text x="'+(c.x+34)+'" y="'+yy+'" fill="#d9e8ef" font-size="11">'+esc(parts[0]||'')+'</text>';
+   if(parts[1])svg+='<text x="'+(c.x+34)+'" y="'+(yy+12)+'" fill="#a9c4d2" font-size="9">'+esc(parts.slice(1).join(' ').slice(0,58))+'</text>';
+  });
  });
- var effect=String(chosen.eventTitle||'EVENTO').slice(0,27);
- svg+='<path d="M930 345 L965 345" stroke="#83e6dd" stroke-width="8"/><path d="M965 345 Q1000 245 1080 285 Q1110 345 1080 405 Q1000 445 965 345 Z" fill="#4a2630" stroke="#e47b79" stroke-width="3"/><circle cx="1044" cy="320" r="7" fill="#fff"/><circle cx="1046" cy="320" r="3" fill="#14202b"/><path d="M1080 345 L1102 354" stroke="#ffc4bd" stroke-width="3" stroke-linecap="round"/><text x="1030" y="370" fill="#fff" font-size="12" font-weight="800" text-anchor="middle">'+esc(effect)+'</text><text x="560" y="665" fill="#7897a9" font-size="10" text-anchor="middle" letter-spacing="1.5">CAUSAS POTENCIALES · EVIDENCIA · VALIDACIÓN · EFECTO</text></svg>';
- return '<div class="fishbone-visual"><div class="fishbone-caption"><span><b>DIAGRAMA DE ISHIKAWA · PESCADO 6M</b> Causa–efecto</span><small>Las seis espinas convergen en el efecto investigado. Documenta varias causas por rama y valida cada una con evidencia.</small></div>'+svg+'</div>';
+ var effect=String(chosen.eventTitle||'EFECTO / EVENTO INVESTIGADO').slice(0,34);
+ svg+='<path d="M1040 360 Q1070 270 1130 300 Q1170 360 1130 420 Q1070 450 1040 360 Z" fill="#452832" stroke="#e47b85" stroke-width="3"/><circle cx="1110" cy="337" r="7" fill="#fff"/><circle cx="1112" cy="337" r="3" fill="#14202b"/><text x="1100" y="382" fill="#fff" font-size="11" font-weight="800" text-anchor="middle">'+esc(effect)+'</text><text x="600" y="710" fill="#7897a9" font-size="10" text-anchor="middle" letter-spacing="1.5">CAUSAS POTENCIALES · EVIDENCIA · VALIDACIÓN · EFECTO</text></svg>';
+ return '<div class="fishbone-visual"><div class="fishbone-caption"><span><b>DIAGRAMA DE ISHIKAWA · MODELO 6M</b> Análisis causa–efecto</span><small>Seis categorías ordenadas en dos niveles y conectadas al eje central. Registra causas potenciales y valida cada una con evidencia antes de determinar la causa raíz.</small></div><div class="ishikawa-stage">'+svg+'</div></div>';
 }
 function investigationsPage(){
  var cats=[['people','1. Personas','Competencia, capacitación, fatiga, comunicación, supervisión.'],['machine','2. Maquinaria','Guardas, mantenimiento, herramientas, diseño, fallas.'],['method','3. Método','Procedimientos, permisos, secuencia, instrucciones.'],['materials','4. Materiales','Materia prima, sustancias, almacenamiento, identificación.'],['environment','5. Medio ambiente','Iluminación, ruido, temperatura, orden, espacio.'],['measurement','6. Medición','Inspecciones, indicadores, calibración, seguimiento.']];
