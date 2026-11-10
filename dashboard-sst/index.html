@@ -64,10 +64,35 @@ function shell(page){
  var active=nav.map(function(n){return '<button class="'+(view===n[0]?'active':'')+'" data-view="'+n[0]+'"><span class="ico">'+n[1]+'</span>'+n[2]+'</button>';}).join('');
  app.innerHTML='<div class="shell"><aside class="sidebar"><div class="brand"><div class="brand-mark">S</div><div><b>SAFETY<span>OS</span></b><small>INDUSTRIAL SAFETY INTELLIGENCE</small></div></div><div class="side-label">CENTRO DE OPERACIONES</div><nav class="nav">'+active+'</nav><div class="side-bottom"><span class="live-dot"></span>ALMACENAMIENTO LOCAL ACTIVO<br><br>PREVENCIÓN · CONTROL · MEJORA<br>BUILD STANDALONE / 001</div></aside><main class="main"><header class="topbar"><div><div class="crumb">SAFETYOS <span>/</span> '+esc((nav.find(function(n){return n[0]===view})||nav[0])[2].toUpperCase())+'</div><div class="company">'+esc(data.company)+'</div></div><div class="profile"><div class="avatar">'+esc((user||'U').slice(0,1).toUpperCase())+'</div><div><b>'+esc(user)+'</b><small>Perfil local de demostración</small></div><button class="ghost" data-action="profile">Cambiar</button></div></header><section class="content">'+page+'</section><footer class="footer"><span>SAFETYOS / INDUSTRIAL SAFETY INTELLIGENCE</span><span>DATOS LOCALES · '+new Date().toLocaleDateString('es-MX')+'</span></footer></main></div>';
 }
-function factory(){
- var pos=[[10,24],[69,19],[75,66],[28,76],[48,48],[88,37]];
- var marks=data.risks.map(function(z,i){var p=pos[i%pos.length];return '<button class="marker '+level(z.level)+' '+(selected===z.id?'selected':'')+'" style="left:'+p[0]+'%;top:'+p[1]+'%" data-zone="'+esc(z.id)+'" title="'+esc(z.area)+'">'+(i+1)+'</button>';}).join('');
- return '<div class="scene-shell"><div class="scene-caption">SITE MODEL / ISOMETRIC INDUSTRIAL MAP · SELECT A MARKER</div><div class="world"><div class="building"></div><div class="roof"></div><div class="silo"></div><div class="belt"></div><div class="warehouse"></div><div class="robot"></div><div class="road"></div><div class="worker"></div>'+marks+'</div></div>';
+function mapCanvas(){
+ var pos=[[14,28],[69,22],[77,68],[28,77],[48,48],[88,39]];
+ var marks=data.risks.map(function(z,i){var p=pos[i%pos.length],x=z.x==null?p[0]:z.x,y=z.y==null?p[1]:z.y;return '<button class="map-pin '+level(z.level)+' '+(selected===z.id?'selected':'')+'" style="left:'+x+'%;top:'+y+'%" data-zone="'+esc(z.id)+'" title="'+esc(z.area)+'"><b>'+(i+1)+'</b><small>'+esc(z.area)+'</small></button>';}).join('');
+ var bg=data.layout&&data.layout.imageData?'background-image:url('+data.layout.imageData+');':'';
+ return '<div class="layout-canvas '+(data.layout&&data.layout.imageData?'has-layout':'blueprint')+'" data-layout-canvas style="'+bg+'"><div class="layout-watermark">'+(data.layout&&data.layout.imageData?esc(data.layout.name||'LAYOUT CARGADO'):'PLANO DE PLANTA / HAZ CLIC PARA UBICAR ÁREAS')+'</div>'+marks+'</div>';
+}
+function factory(){return mapCanvas();}
+function bodySelector(){
+ var regions=[
+ ['cabeza','Cabeza',110,43],['cara','Cara',110,61],['ojo','Ojo',98,60],['oido','Oído',124,62],['cuello','Cuello',110,84],
+ ['hombro','Hombro',75,111],['hombro','Hombro',145,111],['brazo','Brazo',57,148],['brazo','Brazo',163,148],
+ ['codo','Codo',43,184],['codo','Codo',177,184],['antebrazo','Antebrazo',34,218],['antebrazo','Antebrazo',186,218],
+ ['muneca','Muñeca',27,251],['muneca','Muñeca',193,251],['mano','Mano',20,274],['mano','Mano',200,274],
+ ['dedos','Dedos',15,296],['dedos','Dedos',205,296],['torax','Tórax / pecho',110,132],['costillas','Costillas',110,159],
+ ['abdomen','Abdomen',110,190],['espalda','Espalda alta',110,145],['lumbar','Espalda baja / lumbar',110,202],
+ ['pelvis','Pelvis',110,225],['ingle','Ingle',110,246],['cadera','Cadera',78,250],['cadera','Cadera',142,250],
+ ['muslo','Muslo',85,285],['muslo','Muslo',135,285],['rodilla','Rodilla',83,335],['rodilla','Rodilla',137,335],
+ ['pierna','Pierna / pantorrilla',80,375],['pierna','Pierna / pantorrilla',140,375],['tobillo','Tobillo',78,414],['tobillo','Tobillo',142,414],
+ ['pie','Pie',62,430],['pie','Pie',158,430],['dedos_pie','Dedos del pie',57,439],['dedos_pie','Dedos del pie',163,439]
+ ];
+ var hotspots=regions.map(function(r){return '<button type="button" class="body-hotspot '+(selectedBodyPart===r[0]?'chosen':'')+'" style="left:'+(r[2]/220*100)+'%;top:'+(r[3]/450*100)+'%" data-bodypart="'+r[0]+'" data-bodylabel="'+esc(r[1])+'" title="'+esc(r[1])+'"></button>';}).join('');
+ var groups=[
+ ['Cabeza y cara',[['cabeza','Cabeza'],['cara','Cara'],['ojo','Ojo'],['oido','Oído'],['nariz','Nariz'],['boca','Boca'],['dientes','Dientes']]],
+ ['Cuello y tronco',[['cuello','Cuello'],['torax','Tórax / pecho'],['costillas','Costillas'],['abdomen','Abdomen'],['espalda','Espalda alta'],['lumbar','Espalda baja / lumbar'],['columna','Columna'],['pelvis','Pelvis'],['ingle','Ingle']]],
+ ['Extremidades superiores',[['hombro','Hombro'],['brazo','Brazo'],['codo','Codo'],['antebrazo','Antebrazo'],['muneca','Muñeca'],['mano','Mano'],['dedos','Dedos']]],
+ ['Extremidades inferiores',[['cadera','Cadera'],['muslo','Muslo'],['rodilla','Rodilla'],['pierna','Pierna / pantorrilla'],['tobillo','Tobillo'],['pie','Pie'],['dedos_pie','Dedos del pie']]]
+ ];
+ var chips=groups.map(function(g){return '<div class="body-group"><b>'+g[0]+'</b><div>'+g[1].map(function(n){return '<button type="button" class="body-chip '+(selectedBodyPart===n[0]?'active':'')+'" data-bodypart="'+n[0]+'" data-bodylabel="'+esc(n[1])+'">'+esc(n[1])+'</button>';}).join('')+'</div></div>';}).join('');
+ return '<div class="body-selector"><div class="body-head"><div><span class="eyebrow">LOCALIZACIÓN ANATÓMICA</span><h3>¿Qué parte del cuerpo resultó afectada?</h3><small>Selecciona una región en el esquema o utiliza el catálogo anatómico.</small></div><div class="body-tabs"><button type="button" class="'+(bodyView==='front'?'active':'')+'" data-bodyview="front">Anterior</button><button type="button" class="'+(bodyView==='back'?'active':'')+'" data-bodyview="back">Posterior</button></div></div><div class="body-layout"><div class="body-figure-wrap"><div class="body-figure-title">'+(bodyView==='front'?'VISTA ANTERIOR':'VISTA POSTERIOR')+'</div><div class="body-figure"><svg viewBox="0 0 220 450" role="img" aria-label="Silueta anatómica humana"><defs><linearGradient id="skin" x1="0" x2="1"><stop offset="0" stop-color="#557b91"/><stop offset=".5" stop-color="#9bb8c5"/><stop offset="1" stop-color="#557b91"/></linearGradient></defs><g fill="url(#skin)" stroke="#c5d9e1" stroke-width="2"><circle cx="110" cy="45" r="25"/><path d="M94 72 L126 72 L130 91 Q154 96 158 125 L151 220 Q145 237 130 241 L128 265 L145 302 L154 390 L145 431 L128 431 L125 374 L111 310 L95 374 L92 431 L75 431 L66 390 L75 302 L92 265 L90 241 Q75 237 69 220 L62 125 Q66 96 90 91 Z"/><path d="M68 105 Q49 111 43 142 L23 250 L34 256 L61 177 L78 126 Z"/><path d="M152 105 Q171 111 177 142 L197 250 L186 256 L159 177 L142 126 Z"/></g><g fill="none" stroke="#25485c" stroke-width="2" opacity=".8"><path d="M91 100 Q110 110 129 100 M83 140 Q110 153 137 140 M91 181 Q110 190 129 181 M92 225 Q110 233 128 225 M110 93 L110 229"/></g></svg>'+hotspots+'</div><div class="body-selected"><span>REGIÓN SELECCIONADA</span><b>'+esc(selectedBodyPart||'Sin seleccionar')+'</b></div></div><div class="body-catalog">'+chips+'</div></div><input type="hidden" name="bodyPart" value="'+esc(selectedBodyPart)+'"><input type="hidden" name="bodySide" value="'+(bodyView==='front'?'Anterior':'Posterior')+'"></div>';
 }
 function overview(){
  var n=data.incidents.length,open=data.incidents.filter(function(x){return x.status!=='cerrado';}).length,attention=data.risks.filter(function(x){return x.level==='high'||x.level==='critical';}).length;
